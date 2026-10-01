@@ -1,0 +1,33 @@
+:root{--ink:#0d2f3a;--sea:#1d6f8c;--foam:#e6f1f1;--card:#fff;--sun:#e8892b;--danger:#c8432b;--warn:#b8791a;--line:#cfe0e1}
+@media (prefers-color-scheme:dark){:root{--ink:#e3f0f1;--foam:#0a1e25;--card:#10303a;--line:#1f4652}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--foam);color:var(--ink);font:16px/1.55 'Be Vietnam Pro',system-ui,sans-serif}
+main{max-width:920px;margin:0 auto;padding:16px}
+button,input{font:inherit}
+button{cursor:pointer;border:1px solid var(--sea);background:transparent;color:inherit;border-radius:8px;padding:6px 12px}
+button:hover{background:var(--sea);color:#fff}
+:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.top form{display:flex;gap:8px}
+input{flex:1;padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:inherit}
+.results{list-style:none;margin:8px 0;padding:0;background:var(--card);border:1px solid var(--line);border-radius:8px}
+.results button{width:100%;text-align:left;border:0;border-radius:0}
+.favs{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.hero{display:grid;grid-template-columns:1fr auto;gap:8px 24px;align-items:center;margin:20px 0;padding:24px;border-radius:16px;color:#fff;background:linear-gradient(180deg,#1d6f8c 0%,#0d2f3a 100%)}
+.hero h1{margin:0;font-size:1.6rem}
+.desc{margin:0 0 12px;text-transform:capitalize;opacity:.9}
+.hero button{color:#fff;border-color:#ffffff88}
+.temp{font-size:6rem;font-weight:800;line-height:1;display:flex;align-items:center}
+.temp img{width:80px;height:80px}
+dl{grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin:8px 0 0}
+dl div{background:#ffffff1a;border-radius:10px;padding:8px 12px}
+dt{font-size:.8rem;opacity:.8}dd{margin:0;font-weight:700}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px}
+.card h2{margin:0 0 12px;font-size:1.1rem}
+.chart{height:280px}
+.alert{padding:10px 14px;border-radius:8px;margin-bottom:8px;border-left:6px solid;background:var(--card)}
+.alert.danger{border-color:var(--danger)}.alert.warn{border-color:var(--warn)}
+.ok{color:var(--sea)}.err{color:var(--danger)}.muted{opacity:.7;font-size:.9rem}
+.tips{margin:0;padding-left:20px}
+.scroll{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.92rem}
+th,td{text-align:left;padding:8px;border-bottom:1px solid var(--line);white-space:nowrap}
+@media (max-width:560px){.hero{grid-template-columns:1fr}.temp{font-size:4.5rem}}

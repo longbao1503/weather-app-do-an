@@ -1,0 +1,11 @@
+{
+  "name": "weather-app",
+  "private": true,
+  "scripts": {
+    "install:all": "npm i --prefix server && npm i --prefix client",
+    "dev:server": "npm run dev --prefix server",
+    "dev:client": "npm run dev --prefix client",
+    "build": "npm run build --prefix client",
+    "start": "npm start --prefix server"
+  }
+}
