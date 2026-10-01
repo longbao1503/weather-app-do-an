@@ -35,7 +35,7 @@ export default function App() {
   useEffect(() => {
     if (!place) return;
     let off = false;
-    const load = () => fetch(`https://weather-app-do-an-2.onrender.com/api/weather?lat=${place.lat}&lon=${place.lon}`)
+    const load = () => fetch(`/api/weather?lat=${place.lat}&lon=${place.lon}`)
       .then((r) => r.json().then((j) => (r.ok ? j : Promise.reject(new Error(j.error)))))
       .then((j) => !off && (setData(j), setErr('')))
       .catch((e) => !off && setErr(e.message));
@@ -46,7 +46,7 @@ export default function App() {
 
   const search = async (e) => {
     e.preventDefault();
-    setResults(await  q(`https://weather-app-do-an-2.onrender.com/api/geocode?q=${encodeURIComponent(q)}`).then((r) => r.json()).catch(() => []));
+    setResults(await fetch(`/api/geocode?q=${encodeURIComponent(q)}`).then((r) => r.json()).catch(() => []));
   };
   const pick = (p) => { setPlace(p); setResults([]); setQ(''); };
   const isFav = place && favs.some((f) => f.lat === place.lat && f.lon === place.lon);
