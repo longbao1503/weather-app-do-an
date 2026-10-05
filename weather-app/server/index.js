@@ -55,12 +55,15 @@ function alerts(c, daily) {
   return out;
 }
 
+const windDir = (deg) => deg == null ? '' : ['Bắc', 'Đông Bắc', 'Đông', 'Đông Nam', 'Nam', 'Tây Nam', 'Tây', 'Tây Bắc'][Math.round(deg / 45) % 8];
+
 /* ---------- Gọi API gốc (chỉ chạy khi cache MISS) ---------- */
 async function fetchAll(lat, lon) {
-  const [cur, fc, om] = await Promise.all([
+  const [cur, fc, om, aq] = await Promise.all([
     getJson(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&lang=vi&appid=${OWM_KEY}`),
     getJson(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&lang=vi&appid=${OWM_KEY}`),
-    getJson(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&forecast_days=14&timezone=auto&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_sum,windspeed_10m_max`),
+    getJson(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&forecast_days=14&timezone=auto&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_sum,windspeed_10m_max,uv_index_max`),
+    getJson(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=us_aqi,pm2_5,pm10,ozone,nitrogen_dioxide&timezone=auto`).catch(() => null),
   ]);
 
   // Gộp dự báo 3 giờ của OpenWeatherMap thành theo ngày (để so sánh nguồn)
@@ -78,17 +81,34 @@ async function fetchAll(lat, lon) {
     date, text: WMO(D.weathercode[i]),
     max: D.temperature_2m_max[i], min: D.temperature_2m_min[i],
     rain: D.precipitation_sum[i], wind: D.windspeed_10m_max[i],
+    uv: D.uv_index_max?.[i] != null ? r1(D.uv_index_max[i]) : null,
     owm: owmDaily[date] ? { max: r1(owmDaily[date].max), min: r1(owmDaily[date].min), rain: r1(owmDaily[date].rain) } : null,
   }));
 
   const current = {
     id: cur.weather[0].id, desc: cur.weather[0].description, icon: cur.weather[0].icon,
     temp: r1(cur.main.temp), feels: r1(cur.main.feels_like), humidity: cur.main.humidity,
-    wind: r1(cur.wind.speed * 3.6), pressure: cur.main.pressure, name: cur.name,
+    wind: r1(cur.wind.speed * 3.6), windDir: windDir(cur.wind?.deg), pressure: cur.main.pressure,
+    visibility: cur.visibility ? r1(cur.visibility / 1000) : 10, clouds: cur.clouds?.all ?? 0,
+    sunrise: cur.sys?.sunrise, sunset: cur.sys?.sunset,
+    uv: D.uv_index_max?.[0] != null ? r1(D.uv_index_max[0]) : null,
+    name: cur.name, country: cur.sys?.country,
   };
-  const hourly = fc.list.slice(0, 16).map((i) => ({ t: i.dt, temp: r1(i.main.temp), pop: Math.round((i.pop || 0) * 100) }));
+  const hourly = fc.list.slice(0, 16).map((i) => ({
+    t: i.dt, temp: r1(i.main.temp), pop: Math.round((i.pop || 0) * 100),
+    icon: i.weather?.[0]?.icon || '02d', desc: i.weather?.[0]?.description || '',
+    wind: r1(i.wind?.speed * 3.6),
+  }));
 
-  return { current, hourly, daily, alerts: alerts(current, daily), suggestions: suggest(current, daily[0]), updatedAt: Date.now() };
+  const airQuality = aq?.current ? {
+    aqi: aq.current.us_aqi,
+    pm25: r1(aq.current.pm2_5),
+    pm10: r1(aq.current.pm10),
+    o3: r1(aq.current.ozone),
+    no2: r1(aq.current.nitrogen_dioxide),
+  } : null;
+
+  return { current, hourly, daily, airQuality, alerts: alerts(current, daily), suggestions: suggest(current, daily[0]), updatedAt: Date.now() };
 }
 
 /* ---------- API ---------- */
