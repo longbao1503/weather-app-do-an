@@ -1,8 +1,6 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import { Redis } from '@upstash/redis';
 
 const { OWM_KEY, UPSTASH_REDIS_REST_URL: url, UPSTASH_REDIS_REST_TOKEN: token, PORT = 3001, CACHE_TTL = 900 } = process.env;
@@ -143,10 +141,5 @@ app.get('/api/geocode', async (req, res) => {
     res.json(list);
   } catch (e) { res.status(502).json({ error: e.message }); }
 });
-
-// Phục vụ bản build React khi deploy (Render)
-const dist = path.join(path.dirname(fileURLToPath(import.meta.url)), '../client/dist');
-app.use(express.static(dist));
-app.get('*', (_, r) => r.sendFile(path.join(dist, 'index.html')));
 
 app.listen(PORT, () => console.log(`Server: http://localhost:${PORT} | cache: ${redis ? 'Upstash Redis' : 'RAM (chưa cấu hình Upstash)'}`));

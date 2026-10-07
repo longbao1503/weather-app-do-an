@@ -640,7 +640,8 @@ export default function App() {
   useEffect(() => {
     if (!place) return;
     let off = false;
-    const load = () => fetch(`/api/weather?lat=${place.lat}&lon=${place.lon}`)
+    const API_BASE = import.meta.env.VITE_API_URL ?? '';
+    const load = () => fetch(`${API_BASE}/api/weather?lat=${place.lat}&lon=${place.lon}`)
       .then((r) => r.json().then((j) => (r.ok ? j : Promise.reject(new Error(j.error)))))
       .then((j) => !off && (setData(j), setErr('')))
       .catch((e) => !off && setErr(e.message));
@@ -653,7 +654,8 @@ export default function App() {
   const search = async (e) => {
     e.preventDefault();
     if (!q.trim()) return;
-    setResults(await fetch(`/api/geocode?q=${encodeURIComponent(q)}`).then((r) => r.json()).catch(() => []));
+    const API_BASE = import.meta.env.VITE_API_URL ?? '';
+    setResults(await fetch(`${API_BASE}/api/geocode?q=${encodeURIComponent(q)}`).then((r) => r.json()).catch(() => []));
   };
 
   const pick = (p) => {
