@@ -984,7 +984,83 @@ export default function App() {
         </div>
       </header>
 
-      {/* ===== THANH ĐIỀU KHIỂN: THEME, ĐƠN VỊ, ÂM THANH THƯ GIÃN ===== */}
+      {/* ===== THANH TIỆN ÍCH HÀNG ĐẦU & NÚT CTA TẢI APP MOBILE SIÊU NỔI BẬT ===== */}
+      <div className="top-featured-bar">
+        {/* Nút CTA Tải App Mobile Siêu Nổi Bật */}
+        <div className="top-cta-wrapper">
+          <button
+            type="button"
+            className="app-download-nav-btn"
+            onClick={() => setShowAppModal(true)}
+            title="Tải ứng dụng Android (APK) trực tiếp hoặc mở bằng Expo"
+          >
+            <span className="app-cta-shimmer" aria-hidden="true" />
+            
+            <div className="app-cta-icon-wrap">
+              <span className="app-cta-phone-icon">📱</span>
+              <span className="app-cta-badge-dot" title="Sẵn sàng tải xuống">
+                <span className="app-cta-ping" />
+                <span className="app-cta-dot" />
+              </span>
+            </div>
+
+            <div className="app-cta-text-wrap">
+              <div className="app-cta-title-row">
+                <span className="app-cta-label">TẢI APP MOBILE</span>
+                <span className="app-cta-tag">APK ANDROID</span>
+              </div>
+              <span className="app-cta-subtext">Cài đặt trực tiếp · 63 tỉnh ảnh 2K</span>
+            </div>
+
+            <div className="app-cta-arrow-box" aria-hidden="true">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 4v12" />
+                <path d="M6 10l6 6 6-6" />
+                <path d="M4 20h16" />
+              </svg>
+            </div>
+          </button>
+
+          <div className="cta-live-pills">
+            <span className="cta-live-pill">✨ Bản dựng EAS v1.0</span>
+            <span className="cta-live-pill">📲 Quét mã QR</span>
+          </div>
+        </div>
+
+        {/* Các nút tiện ích phụ: Âm thanh mưa rơi, Đổi đơn vị °C / °F, Chia sẻ */}
+        <div className="top-quick-tools">
+          <button
+            className={`soundscape-toggle-btn ${soundActive ? 'active' : ''}`}
+            onClick={toggleSoundscape}
+            title="Bật/Tắt âm thanh mưa rơi thư giãn khi làm việc"
+          >
+            {soundActive ? '🌧️ Đang phát mưa' : '🎵 Âm thanh mưa'}
+          </button>
+
+          <div className="unit-toggle-wrap">
+            <button
+              className={`unit-btn ${unit === 'C' ? 'active' : ''}`}
+              onClick={() => setUnit('C')}
+            >
+              °C
+            </button>
+            <button
+              className={`unit-btn ${unit === 'F' ? 'active' : ''}`}
+              onClick={() => setUnit('F')}
+            >
+              °F
+            </button>
+          </div>
+
+          {data && (
+            <button className="action-btn" onClick={copyWeatherSummary} title="Sao chép tóm tắt thời tiết">
+              📋 Chia sẻ
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* ===== THANH CHỌN BẢNG MÀU GIAO DIỆN (THEME) ===== */}
       <div className="theme-bar-container">
         <div className="theme-group">
           <span className="theme-group-label">Màu Tươi:</span>
@@ -1034,49 +1110,6 @@ export default function App() {
           >
             🌲 Rừng đêm
           </button>
-        </div>
-
-        <div className="top-action-bar">
-          {/* Nút Tải App Mobile */}
-          <button
-            type="button"
-            className="app-download-nav-btn"
-            onClick={() => setShowAppModal(true)}
-            title="Tải ứng dụng Android cho điện thoại"
-          >
-            📱 Tải App Mobile
-          </button>
-
-          {/* Nút Âm thanh thiên nhiên */}
-          <button
-            className={`soundscape-toggle-btn ${soundActive ? 'active' : ''}`}
-            onClick={toggleSoundscape}
-            title="Bật/Tắt âm thanh mưa rơi thư giãn khi làm việc"
-          >
-            {soundActive ? '🌧️ Đang phát mưa' : '🎵 Âm thanh mưa'}
-          </button>
-
-          {/* Đổi đơn vị °C / °F */}
-          <div className="unit-toggle-wrap">
-            <button
-              className={`unit-btn ${unit === 'C' ? 'active' : ''}`}
-              onClick={() => setUnit('C')}
-            >
-              °C
-            </button>
-            <button
-              className={`unit-btn ${unit === 'F' ? 'active' : ''}`}
-              onClick={() => setUnit('F')}
-            >
-              °F
-            </button>
-          </div>
-
-          {data && (
-            <button className="action-btn" onClick={copyWeatherSummary} title="Sao chép tóm tắt thời tiết">
-              📋 Chia sẻ
-            </button>
-          )}
         </div>
       </div>
 
