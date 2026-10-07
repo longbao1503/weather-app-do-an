@@ -1,0 +1,52 @@
+{
+  "expo": {
+    "name": "Thời Tiết VN",
+    "slug": "thoi-tiet-vn",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": false,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0f1724"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.thoitietvn.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png",
+        "backgroundColor": "#0f1724"
+      },
+      "package": "com.thoitietvn.app",
+      "versionCode": 1,
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "INTERNET",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Ứng dụng cần truy cập vị trí để hiển thị thời tiết tại nơi bạn đang đứng."
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "80d09260-6141-4eda-a956-361ec33d8d78"
+      }
+    }
+  }
+}

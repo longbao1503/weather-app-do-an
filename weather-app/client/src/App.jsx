@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useMemo } from 'react';
 import Chart from 'chart.js/auto';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { MobileAppSection, MobileAppModal } from './MobileAppDownload.jsx';
 
 const DEFAULT = { name: 'Nha Trang, Khánh Hòa', lat: 12.2388, lon: 109.1967 };
 
@@ -538,6 +539,7 @@ export default function App() {
   const [toast, setToast] = useState('');
   const [selectedDay, setSelectedDay] = useState(null);
   const [soundActive, setSoundActive] = useState(false);
+  const [showAppModal, setShowAppModal] = useState(false);
 
   const audioCtxRef = useRef(null);
 
@@ -910,6 +912,13 @@ export default function App() {
       {/* Toast thông báo */}
       {toast && <div className="toast-msg">{toast}</div>}
 
+      {/* Modal Tải App Mobile */}
+      <MobileAppModal
+        isOpen={showAppModal}
+        onClose={() => setShowAppModal(false)}
+        showToast={showToast}
+      />
+
       {/* Modal chi tiết ngày khi click vào card 14 ngày */}
       {selectedDay && (
         <div className="modal-overlay" onClick={() => setSelectedDay(null)}>
@@ -1028,6 +1037,16 @@ export default function App() {
         </div>
 
         <div className="top-action-bar">
+          {/* Nút Tải App Mobile */}
+          <button
+            type="button"
+            className="app-download-nav-btn"
+            onClick={() => setShowAppModal(true)}
+            title="Tải ứng dụng Android cho điện thoại"
+          >
+            📱 Tải App Mobile
+          </button>
+
           {/* Nút Âm thanh thiên nhiên */}
           <button
             className={`soundscape-toggle-btn ${soundActive ? 'active' : ''}`}
@@ -1552,7 +1571,27 @@ export default function App() {
             </div>
           </section>
 
-          <footer style={{ textAlign: 'center', padding: '20px 0 10px', fontSize: '0.84rem', color: 'var(--text-muted)' }}>
+          {/* ===== KHU VỰC TẢI ỨNG DỤNG DI ĐỘNG (MOBILE APP APK) ===== */}
+          <MobileAppSection
+            onOpenModal={() => setShowAppModal(true)}
+            showToast={showToast}
+          />
+
+          <footer style={{ textAlign: 'center', padding: '24px 0 16px', fontSize: '0.84rem', color: 'var(--text-muted)' }}>
+            <div style={{ marginBottom: 8 }}>
+              <a
+                href="#download-app"
+                onClick={(e) => {
+                  e.preventDefault();
+                  const el = document.getElementById('download-app');
+                  if (el) el.scrollIntoView({ behavior: 'smooth' });
+                  else setShowAppModal(true);
+                }}
+                style={{ color: '#38bdf8', textDecoration: 'none', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 6 }}
+              >
+                <span>📱</span> Tải Ứng Dụng Di Động Android (APK) · Đồ Án Chuyên Ngành
+              </a>
+            </div>
             Cập nhật lúc {new Date(data.updatedAt).toLocaleTimeString('vi-VN')} · Dữ liệu thời tiết thời gian thực đa nguồn
           </footer>
         </>
