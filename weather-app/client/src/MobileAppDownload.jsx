@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import QRCode from 'qrcode';
 
-export const EXPO_BUILD_URL = 'https://expo.dev/accounts/longbao/projects/thoi-tiet-vn/builds/5a9bc843-82fd-4c5b-800d-8f1e4c926811';
+export const EXPO_BUILD_URL = 'https://expo.dev/accounts/longbao/projects/thoi-tiet-vn/builds/b918a518-69e7-40e6-ac92-ecdf385179cf';
 export const DIRECT_APK_FILENAME = 'weather-app.apk';
 
 /* Component vẽ QR Code tự động trên Canvas */
