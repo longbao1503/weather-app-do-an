@@ -16,10 +16,16 @@ const cacheGet = async (k) => {
 const cacheSet = async (k, v, ttl = +CACHE_TTL) =>
   redis ? redis.set(k, v, { ex: ttl }) : mem.set(k, { v, exp: Date.now() + ttl * 1000 });
 
-const getJson = async (u) => {
-  const r = await fetch(u);
-  if (!r.ok) throw new Error(`API lỗi ${r.status}: ${u.split('?')[0]}`);
-  return r.json();
+const getJson = async (u, retries = 1) => {
+  for (let i = 0; i <= retries; i++) {
+    const r = await fetch(u);
+    if (r.status === 429 && i < retries) {
+      await new Promise((res) => setTimeout(res, 1000));
+      continue;
+    }
+    if (!r.ok) throw new Error(`API lỗi ${r.status}: ${u.split('?')[0]}`);
+    return r.json();
+  }
 };
 
 /* ---------- Tiện ích ---------- */
@@ -29,7 +35,7 @@ const r1 = (n) => Math.round(n * 10) / 10;
 
 /* ---------- Hệ thống gợi ý hoạt động (rule-based) ---------- */
 function suggest(c, today) {
-  const rainy = (c.id >= 300 && c.id < 600) || today.rain >= 5;
+  const rainy = (c.id >= 300 && c.id < 600) || (today?.rain || 0) >= 5;
   if (c.id >= 200 && c.id < 300) return ['Ở trong nhà, tránh cây cao và khu vực trống trải', 'Hoãn đi biển, leo núi, đi thuyền'];
   if (rainy) return ['Đọc sách, xem phim trong nhà', 'Cà phê, bảo tàng, trung tâm thương mại', 'Mang áo mưa nếu phải ra ngoài'];
   if (c.temp >= 35) return ['Bơi lội hoặc tắm biển lúc sáng sớm, chiều muộn', 'Tránh ra nắng 11h-15h, uống đủ nước'];
@@ -60,37 +66,79 @@ async function fetchAll(lat, lon) {
   const [cur, fc, om, aq] = await Promise.all([
     getJson(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&lang=vi&appid=${OWM_KEY}`),
     getJson(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&lang=vi&appid=${OWM_KEY}`),
-    getJson(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&forecast_days=14&timezone=auto&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_sum,windspeed_10m_max,uv_index_max`),
+    getJson(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&forecast_days=14&timezone=auto&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_sum,windspeed_10m_max,uv_index_max`).catch((err) => {
+      console.warn('Open-Meteo 429 rate limit - Fallback sang OpenWeatherMap:', err.message);
+      return null;
+    }),
     getJson(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=us_aqi,pm2_5,pm10,ozone,nitrogen_dioxide&timezone=auto`).catch(() => null),
   ]);
 
-  // Gộp dự báo 3 giờ của OpenWeatherMap thành theo ngày (để so sánh nguồn)
+  // Gộp dự báo 3 giờ của OpenWeatherMap thành theo ngày
   const owmDaily = {};
   for (const i of fc.list) {
     const d = new Date((i.dt + fc.city.timezone) * 1000).toISOString().slice(0, 10);
-    const o = (owmDaily[d] ??= { max: -99, min: 99, rain: 0 });
+    const o = (owmDaily[d] ??= {
+      max: -99,
+      min: 99,
+      rain: 0,
+      text: i.weather?.[0]?.description || 'Có mây',
+      wind: (i.wind?.speed || 0) * 3.6,
+    });
     o.max = Math.max(o.max, i.main.temp_max);
     o.min = Math.min(o.min, i.main.temp_min);
     o.rain += i.rain?.['3h'] || 0;
   }
 
-  const D = om.daily;
-  const daily = D.time.map((date, i) => ({
-    date, text: WMO(D.weathercode[i]),
-    max: D.temperature_2m_max[i], min: D.temperature_2m_min[i],
-    rain: D.precipitation_sum[i], wind: D.windspeed_10m_max[i],
-    uv: D.uv_index_max?.[i] != null ? r1(D.uv_index_max[i]) : null,
-    owm: owmDaily[date] ? { max: r1(owmDaily[date].max), min: r1(owmDaily[date].min), rain: r1(owmDaily[date].rain) } : null,
-  }));
+  let daily = [];
+  if (om?.daily?.time) {
+    const D = om.daily;
+    daily = D.time.map((date, i) => ({
+      date,
+      text: WMO(D.weathercode[i]),
+      max: D.temperature_2m_max[i],
+      min: D.temperature_2m_min[i],
+      rain: D.precipitation_sum[i],
+      wind: D.windspeed_10m_max[i],
+      uv: D.uv_index_max?.[i] != null ? r1(D.uv_index_max[i]) : null,
+      owm: owmDaily[date]
+        ? { max: r1(owmDaily[date].max), min: r1(owmDaily[date].min), rain: r1(owmDaily[date].rain) }
+        : null,
+    }));
+  } else {
+    // Fallback: Sử dụng dữ liệu dự báo ngày từ OpenWeatherMap khi Open-Meteo bị 429 rate limit
+    daily = Object.entries(owmDaily).map(([date, o]) => ({
+      date,
+      text: o.text,
+      max: r1(o.max),
+      min: r1(o.min),
+      rain: r1(o.rain),
+      wind: r1(o.wind),
+      uv: 5,
+      owm: { max: r1(o.max), min: r1(o.min), rain: r1(o.rain) },
+    }));
+  }
+
+  const uvToday = om?.daily?.uv_index_max?.[0] != null
+    ? r1(om.daily.uv_index_max[0])
+    : (cur.clouds?.all > 70 ? 3 : 6);
 
   const current = {
-    id: cur.weather[0].id, desc: cur.weather[0].description, icon: cur.weather[0].icon,
-    temp: r1(cur.main.temp), feels: r1(cur.main.feels_like), humidity: cur.main.humidity,
-    wind: r1(cur.wind.speed * 3.6), windDir: windDir(cur.wind?.deg), pressure: cur.main.pressure,
-    visibility: cur.visibility ? r1(cur.visibility / 1000) : 10, clouds: cur.clouds?.all ?? 0,
-    sunrise: cur.sys?.sunrise, sunset: cur.sys?.sunset,
-    uv: D.uv_index_max?.[0] != null ? r1(D.uv_index_max[0]) : null,
-    name: cur.name, country: cur.sys?.country,
+    id: cur.weather[0].id,
+    desc: cur.weather[0].description,
+    icon: cur.weather[0].icon,
+    temp: r1(cur.main.temp),
+    feels: r1(cur.main.feels_like),
+    humidity: cur.main.humidity,
+    wind: r1(cur.wind.speed * 3.6),
+    windDir: windDir(cur.wind?.deg),
+    pressure: cur.main.pressure,
+    visibility: cur.visibility ? r1(cur.visibility / 1000) : 10,
+    clouds: cur.clouds?.all ?? 0,
+    sunrise: cur.sys?.sunrise,
+    sunset: cur.sys?.sunset,
+    uv: uvToday,
+    name: cur.name,
+    country: cur.sys?.country,
   };
   const hourly = fc.list.slice(0, 16).map((i) => ({
     t: i.dt, temp: r1(i.main.temp), pop: Math.round((i.pop || 0) * 100),
