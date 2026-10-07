@@ -987,45 +987,38 @@ export default function App() {
       {/* ===== THANH TIỆN ÍCH HÀNG ĐẦU & NÚT CTA TẢI APP MOBILE SIÊU NỔI BẬT ===== */}
       <div className="top-featured-bar">
         {/* Nút CTA Tải App Mobile Siêu Nổi Bật */}
-        <div className="top-cta-wrapper">
-          <button
-            type="button"
-            className="app-download-nav-btn"
-            onClick={() => setShowAppModal(true)}
-            title="Tải ứng dụng Android (APK) trực tiếp hoặc mở bằng Expo"
-          >
-            <span className="app-cta-shimmer" aria-hidden="true" />
-            
-            <div className="app-cta-icon-wrap">
-              <span className="app-cta-phone-icon">📱</span>
-              <span className="app-cta-badge-dot" title="Sẵn sàng tải xuống">
-                <span className="app-cta-ping" />
-                <span className="app-cta-dot" />
-              </span>
-            </div>
-
-            <div className="app-cta-text-wrap">
-              <div className="app-cta-title-row">
-                <span className="app-cta-label">TẢI APP MOBILE</span>
-                <span className="app-cta-tag">APK ANDROID</span>
-              </div>
-              <span className="app-cta-subtext">Cài đặt trực tiếp · 63 tỉnh ảnh 2K</span>
-            </div>
-
-            <div className="app-cta-arrow-box" aria-hidden="true">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 4v12" />
-                <path d="M6 10l6 6 6-6" />
-                <path d="M4 20h16" />
-              </svg>
-            </div>
-          </button>
-
-          <div className="cta-live-pills">
-            <span className="cta-live-pill">✨ Bản dựng EAS v1.0</span>
-            <span className="cta-live-pill">📲 Quét mã QR</span>
+        <button
+          type="button"
+          className="app-download-nav-btn"
+          onClick={() => setShowAppModal(true)}
+          title="Tải ứng dụng Android (APK) trực tiếp hoặc mở bằng Expo"
+        >
+          <span className="app-cta-shimmer" aria-hidden="true" />
+          
+          <div className="app-cta-icon-wrap">
+            <span className="app-cta-phone-icon">📱</span>
+            <span className="app-cta-badge-dot" title="Sẵn sàng tải xuống">
+              <span className="app-cta-ping" />
+              <span className="app-cta-dot" />
+            </span>
           </div>
-        </div>
+
+          <div className="app-cta-text-wrap">
+            <div className="app-cta-title-row">
+              <span className="app-cta-label">TẢI APP MOBILE</span>
+              <span className="app-cta-tag">APK ANDROID</span>
+            </div>
+            <span className="app-cta-subtext">Cài đặt trực tiếp · 63 tỉnh ảnh 2K</span>
+          </div>
+
+          <div className="app-cta-arrow-box" aria-hidden="true">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 4v12" />
+              <path d="M6 10l6 6 6-6" />
+              <path d="M4 20h16" />
+            </svg>
+          </div>
+        </button>
 
         {/* Các nút tiện ích phụ: Âm thanh mưa rơi, Đổi đơn vị °C / °F, Chia sẻ */}
         <div className="top-quick-tools">
