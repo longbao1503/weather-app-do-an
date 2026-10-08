@@ -49,7 +49,7 @@ export function MobileAppSection({ onOpenModal, showToast }) {
         {/* Cột trái: Thông tin đồ án & Tính năng App */}
         <div className="mobile-app-info">
           <div className="mobile-app-badges">
-            <span className="app-pill-badge primary">📱 ĐỒ ÁN REACT NATIVE</span>
+            <span className="app-pill-badge primary">📱 REACT NATIVE APP</span>
             <span className="app-pill-badge green">✓ SẴN SÀNG CÀI ĐẶT (APK)</span>
             <span className="app-pill-badge blue">v1.0.0</span>
           </div>
@@ -242,7 +242,7 @@ export function MobileAppModal({ isOpen, onClose, showToast }) {
               <span>📱</span> Tải Ứng Dụng Thời Tiết VN (Android APK)
             </h3>
             <div style={{ fontSize: '0.88rem', color: 'var(--text-sub)', marginTop: 4 }}>
-              Đồ án Chuyên ngành CNTT · Đại học Thái Bình Dương
+              Dự Báo Khí Tượng & Radar Vệ Tinh Đa Nguồn · Phiên Bản Di Động
             </div>
           </div>
           <button className="modal-close-icon" onClick={onClose}>✕</button>

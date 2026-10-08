@@ -540,6 +540,12 @@ export default function App() {
   const [selectedDay, setSelectedDay] = useState(null);
   const [soundActive, setSoundActive] = useState(false);
   const [showAppModal, setShowAppModal] = useState(false);
+  const [activePage, setActivePage] = useState('overview'); // 'overview' | 'forecast' | 'map' | 'air' | 'mobile'
+
+  const goToPage = (pageId) => {
+    setActivePage(pageId);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const audioCtxRef = useRef(null);
 
@@ -969,63 +975,69 @@ export default function App() {
         </div>
       )}
 
-      {/* ===== BADGE HỌC THUẬT ĐỒ ÁN CHUYÊN NGÀNH TBD ===== */}
-      <header className="tbd-header-badge">
-        <div className="tbd-brand-left">
-          <div className="tbd-logo-shield">TBD</div>
-          <div className="tbd-info-text">
-            <span className="tbd-title">TRƯỜNG ĐẠI HỌC THÁI BÌNH DƯƠNG</span>
-            <span className="tbd-sub">Khoa Công nghệ Thông tin và Bán dẫn · Đồ án Chuyên ngành</span>
-          </div>
-        </div>
-        <div className="tbd-meta-right">
-          <div>SV: <strong>Trần Long Bảo</strong> (CNTT22DH1)</div>
-          <div>GVHD: <strong>TS. Phan Thanh Sơn</strong></div>
-        </div>
-      </header>
-
-      {/* ===== THANH TIỆN ÍCH HÀNG ĐẦU & NÚT CTA TẢI APP MOBILE SIÊU NỔI BẬT ===== */}
-      <div className="top-featured-bar">
-        {/* Nút CTA Tải App Mobile Siêu Nổi Bật */}
-        <button
-          type="button"
-          className="app-download-nav-btn"
-          onClick={() => setShowAppModal(true)}
-          title="Tải ứng dụng Android (APK) trực tiếp hoặc mở bằng Expo"
-        >
-          <span className="app-cta-shimmer" aria-hidden="true" />
-          
-          <div className="app-cta-icon-wrap">
-            <span className="app-cta-phone-icon">📱</span>
-            <span className="app-cta-badge-dot" title="Sẵn sàng tải xuống">
-              <span className="app-cta-ping" />
-              <span className="app-cta-dot" />
-            </span>
-          </div>
-
-          <div className="app-cta-text-wrap">
-            <div className="app-cta-title-row">
-              <span className="app-cta-label">TẢI APP MOBILE</span>
-              <span className="app-cta-tag">APK ANDROID</span>
+      {/* ===== MODERN HEADER NAVBAR VỚI CÁC TAB CHUYỂN TRANG ===== */}
+      <header className="app-navbar">
+        <div className="navbar-brand-wrap" onClick={() => goToPage('overview')} title="Quay về trang Tổng quan">
+          <div className="navbar-logo-icon">⛅</div>
+          <div className="navbar-brand-info">
+            <div className="navbar-brand-title">
+              SkyCast VN <span className="tag">Realtime</span>
             </div>
-            <span className="app-cta-subtext">Cài đặt trực tiếp · 63 tỉnh ảnh 2K</span>
+            <span className="navbar-brand-tagline">Dự Báo Khí Tượng & Radar Vệ Tinh</span>
           </div>
+        </div>
 
-          <div className="app-cta-arrow-box" aria-hidden="true">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 4v12" />
-              <path d="M6 10l6 6 6-6" />
-              <path d="M4 20h16" />
-            </svg>
-          </div>
-        </button>
-
-        {/* Các nút tiện ích phụ: Âm thanh mưa rơi, Đổi đơn vị °C / °F, Chia sẻ */}
-        <div className="top-quick-tools">
+        {/* Thanh chuyển các Trang / Tabs */}
+        <nav className="navbar-tabs-nav" aria-label="Điều hướng chính">
           <button
-            className={`soundscape-toggle-btn ${soundActive ? 'active' : ''}`}
+            className={`nav-tab-btn ${activePage === 'overview' ? 'active' : ''}`}
+            onClick={() => goToPage('overview')}
+            title="Trang Tổng quan thời tiết"
+          >
+            <span className="tab-icon">🏠</span>
+            <span className="tab-text">Tổng quan</span>
+          </button>
+          <button
+            className={`nav-tab-btn ${activePage === 'forecast' ? 'active' : ''}`}
+            onClick={() => goToPage('forecast')}
+            title="Dự báo 48h & 14 ngày"
+          >
+            <span className="tab-icon">📊</span>
+            <span className="tab-text">Dự báo & Biểu đồ</span>
+          </button>
+          <button
+            className={`nav-tab-btn ${activePage === 'map' ? 'active' : ''}`}
+            onClick={() => goToPage('map')}
+            title="Bản đồ tương tác vệ tinh và radar"
+          >
+            <span className="tab-icon">🛰️</span>
+            <span className="tab-text">Bản đồ Radar</span>
+          </button>
+          <button
+            className={`nav-tab-btn ${activePage === 'air' ? 'active' : ''}`}
+            onClick={() => goToPage('air')}
+            title="Chất lượng không khí AQI và tia UV"
+          >
+            <span className="tab-icon">🍃</span>
+            <span className="tab-text">Không khí & Sức khỏe</span>
+          </button>
+          <button
+            className={`nav-tab-btn ${activePage === 'mobile' ? 'active' : ''}`}
+            onClick={() => goToPage('mobile')}
+            title="Tải ứng dụng di động Android APK"
+          >
+            <span className="tab-icon">📱</span>
+            <span className="tab-text">Tải App</span>
+            <span className="tab-badge">APK</span>
+          </button>
+        </nav>
+
+        {/* Công cụ nhanh */}
+        <div className="navbar-actions">
+          <button
+            className={`tool-btn ${soundActive ? 'active' : ''}`}
             onClick={toggleSoundscape}
-            title="Bật/Tắt âm thanh mưa rơi thư giãn khi làm việc"
+            title="Bật/Tắt âm thanh mưa rơi thư giãn"
           >
             {soundActive ? '🌧️ Đang phát mưa' : '🎵 Âm thanh mưa'}
           </button>
@@ -1046,12 +1058,12 @@ export default function App() {
           </div>
 
           {data && (
-            <button className="action-btn" onClick={copyWeatherSummary} title="Sao chép tóm tắt thời tiết">
+            <button className="tool-btn" onClick={copyWeatherSummary} title="Sao chép tóm tắt thời tiết">
               📋 Chia sẻ
             </button>
           )}
         </div>
-      </div>
+      </header>
 
       {/* ===== THANH CHỌN BẢNG MÀU GIAO DIỆN (THEME) ===== */}
       <div className="theme-bar-container">
@@ -1171,454 +1183,677 @@ export default function App() {
 
       {data && (
         <>
-          {/* ===== BANNER HERO SECTION CÓ LỒNG ẢNH THỜI TIẾT ===== */}
-          <section className="hero-banner">
-            <img
-              className="hero-backdrop-img"
-              src={bannerData.url}
-              alt={bannerData.title || 'Weather scenic atmosphere'}
-              loading="lazy"
-            />
-            <div className="hero-overlay-mask" />
-
-            <div className="hero-content">
-              <div>
-                {bannerData.title && (
-                  <div className="hero-scenic-badge">
-                    📸 {bannerData.title}
-                  </div>
-                )}
-                <h1>{activeLocationName}</h1>
-                <p className="hero-desc">{c.desc}</p>
-                <button className="hero-fav-btn" onClick={toggleFav}>
-                  {isFav ? '★ Đã lưu địa điểm này' : '☆ Lưu vào yêu thích'}
-                </button>
-              </div>
-
-              <div className="hero-temp-box">
+          {/* ========================================================
+              TRANG 1: TỔNG QUAN (OVERVIEW DASHBOARD)
+              ======================================================== */}
+          {activePage === 'overview' && (
+            <>
+              {/* Banner Hero thời tiết hiện tại */}
+              <section className="hero-banner">
                 <img
-                  className="hero-icon-img"
-                  src={`https://openweathermap.org/img/wn/${c.icon}@2x.png`}
-                  alt={c.desc}
+                  className="hero-backdrop-img"
+                  src={bannerData.url}
+                  alt={bannerData.title || 'Weather scenic atmosphere'}
+                  loading="lazy"
                 />
-                <div className="hero-temp-value">{convertT(c.temp)}°</div>
-              </div>
+                <div className="hero-overlay-mask" />
 
-              <dl className="hero-metrics-dl">
-                <div className="hero-metric-card">
-                  <dt>🌡️ Cảm giác như</dt>
-                  <dd>{convertT(c.feels)}{unitLabel}</dd>
-                </div>
-                <div className="hero-metric-card">
-                  <dt>💧 Độ ẩm</dt>
-                  <dd>{c.humidity}%</dd>
-                </div>
-                <div className="hero-metric-card">
-                  <dt>💨 Gió</dt>
-                  <dd>{c.wind} <span style={{ fontSize: '0.8rem', fontWeight: 500 }}>km/h</span></dd>
-                </div>
-                <div className="hero-metric-card">
-                  <dt>☀️ Chỉ số UV</dt>
-                  <dd style={{ color: uvInfo.color }}>{c.uv ?? '--'}</dd>
-                </div>
-              </dl>
-            </div>
-          </section>
-
-          {/* ===== THANH DỰ BÁO THEO TỪNG GIỜ (HOURLY SLIDER - APPLE STYLE) ===== */}
-          <section className="card" style={{ padding: '18px 20px' }}>
-            <h2 style={{ marginBottom: 10 }}>⏱️ Dự báo chi tiết các mốc giờ tới</h2>
-            <div className="hourly-slider-wrap">
-              {data.hourly.map((h, i) => (
-                <div className="hourly-item-card" key={i}>
-                  <span className="hourly-time">{i === 0 ? 'Bây giờ' : fmtHour(h.t)}</span>
-                  <img
-                    className="hourly-icon"
-                    src={`https://openweathermap.org/img/wn/${h.icon}.png`}
-                    alt={h.desc}
-                  />
-                  <span className="hourly-temp">{convertT(h.temp)}°</span>
-                  {h.pop > 0 ? (
-                    <span className="hourly-pop">💧 {h.pop}%</span>
-                  ) : (
-                    <span className="hourly-pop" style={{ opacity: 0.35 }}>—</span>
-                  )}
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* ===== CHẤT LƯỢNG KHÔNG KHÍ (AIR QUALITY - AQI) ===== */}
-          {aq && (
-            <section className="card">
-              <h2>🍃 Chất lượng không khí (Air Quality Index - AQI)</h2>
-              <div className="aqi-container">
-                <div className="aqi-score-box">
-                  <div className="aqi-num-row">
-                    <div className="aqi-number" style={{ color: aqiInfo.color }}>{aq.aqi}</div>
-                    <div>
-                      <span className="aqi-status-badge" style={{ background: `${aqiInfo.color}25`, color: aqiInfo.color, border: `1px solid ${aqiInfo.color}60` }}>
-                        ● {aqiInfo.status}
-                      </span>
+                <div className="hero-content">
+                  <div>
+                    {bannerData.title && (
+                      <div className="hero-scenic-badge">
+                        📸 {bannerData.title}
+                      </div>
+                    )}
+                    <h1>{activeLocationName}</h1>
+                    <p className="hero-desc">{c.desc}</p>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+                      <button className="hero-fav-btn" onClick={toggleFav}>
+                        {isFav ? '★ Đã lưu địa điểm này' : '☆ Lưu vào yêu thích'}
+                      </button>
+                      <button
+                        className="hero-fav-btn"
+                        onClick={() => goToPage('forecast')}
+                        style={{ background: 'rgba(2, 132, 199, 0.45)', borderColor: '#38bdf8' }}
+                      >
+                        📊 Xem Biểu Đồ & 14 Ngày →
+                      </button>
                     </div>
                   </div>
-                  <div className="aqi-bar-track">
-                    <div className="aqi-dot-marker" style={{ left: `${Math.min(Math.max(aqiInfo.pct, 5), 98)}%` }} />
+
+                  <div className="hero-temp-box">
+                    <img
+                      className="hero-icon-img"
+                      src={`https://openweathermap.org/img/wn/${c.icon}@2x.png`}
+                      alt={c.desc}
+                    />
+                    <div className="hero-temp-value">{convertT(c.temp)}°</div>
                   </div>
-                  <p style={{ fontSize: '0.86rem', color: 'var(--text-sub)', marginTop: 4 }}>
-                    {aqiInfo.desc}
+
+                  <dl className="hero-metrics-dl">
+                    <div className="hero-metric-card">
+                      <dt>🌡️ Cảm giác như</dt>
+                      <dd>{convertT(c.feels)}{unitLabel}</dd>
+                    </div>
+                    <div className="hero-metric-card">
+                      <dt>💧 Độ ẩm</dt>
+                      <dd>{c.humidity}%</dd>
+                    </div>
+                    <div className="hero-metric-card">
+                      <dt>💨 Gió</dt>
+                      <dd>{c.wind} <span style={{ fontSize: '0.8rem', fontWeight: 500 }}>km/h</span></dd>
+                    </div>
+                    <div
+                      className="hero-metric-card"
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => goToPage('air')}
+                      title="Bấm để xem chi tiết chỉ số UV & Chất lượng không khí"
+                    >
+                      <dt>☀️ Chỉ số UV ↗</dt>
+                      <dd style={{ color: uvInfo.color }}>{c.uv ?? '--'}</dd>
+                    </div>
+                  </dl>
+                </div>
+              </section>
+
+              {/* Thanh dự báo theo từng giờ */}
+              <section className="card" style={{ padding: '18px 20px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                  <h2 style={{ margin: 0 }}>⏱️ Dự báo chi tiết các mốc giờ tới</h2>
+                  <button
+                    onClick={() => goToPage('forecast')}
+                    style={{ background: 'transparent', border: 0, color: '#0284c7', fontSize: '0.84rem', fontWeight: 700, cursor: 'pointer' }}
+                  >
+                    Xem Biểu Đồ Đầy Đủ →
+                  </button>
+                </div>
+                <div className="hourly-slider-wrap">
+                  {data.hourly.map((h, i) => (
+                    <div className="hourly-item-card" key={i}>
+                      <span className="hourly-time">{i === 0 ? 'Bây giờ' : fmtHour(h.t)}</span>
+                      <img
+                        className="hourly-icon"
+                        src={`https://openweathermap.org/img/wn/${h.icon}.png`}
+                        alt={h.desc}
+                      />
+                      <span className="hourly-temp">{convertT(h.temp)}°</span>
+                      {h.pop > 0 ? (
+                        <span className="hourly-pop">💧 {h.pop}%</span>
+                      ) : (
+                        <span className="hourly-pop" style={{ opacity: 0.35 }}>—</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              {/* Hệ thống cảnh báo thời tiết */}
+              {data.alerts.length > 0 ? (
+                <section className="alerts-box">
+                  {data.alerts.map((a, i) => (
+                    <div key={i} className={`alert-row ${a.level}`}>
+                      <span style={{ fontSize: '1.2rem' }}>{a.level === 'danger' ? '🚨' : '⚠️'}</span>
+                      <div>
+                        <strong>{a.title}:</strong> {a.msg}
+                      </div>
+                    </div>
+                  ))}
+                </section>
+              ) : (
+                <p className="ok-banner">
+                  ✅ <strong>An toàn:</strong> Không có cảnh báo thời tiết cực đoan nguy hiểm trong 3 ngày tới tại khu vực này.
+                </p>
+              )}
+
+              {/* Gợi ý hoạt động thực tế */}
+              <section className="card">
+                <h2>💡 Gợi ý hoạt động thực tế theo thời tiết hôm nay</h2>
+                <div className="tips-grid">
+                  {data.suggestions.map((s, i) => (
+                    <div className="tip-card-item" key={i}>
+                      <span>🎯</span>
+                      <span>{s}</span>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              {/* ===== TRUNG TÂM NÚT CTA ĐIỀU HƯỚNG TỔNG QUAN ===== */}
+              <section className="cta-hub-section">
+                <div className="cta-hub-intro">
+                  <h2>⚡ Khám Phá Tính Năng Chuyên Sâu</h2>
+                  <span style={{ fontSize: '0.84rem', color: 'var(--text-muted)' }}>Chuyển nhanh sang các chuyên mục</span>
+                </div>
+
+                <div className="cta-hub-grid">
+                  {/* Card 1: Dự báo & Biểu đồ */}
+                  <div className="cta-action-card">
+                    <div>
+                      <div className="cta-card-top">
+                        <div className="cta-card-icon-box">📊</div>
+                        <span className="cta-card-badge blue">48H & 14 NGÀY</span>
+                      </div>
+                      <h3 className="cta-card-title">Dự Báo & Biểu Đồ Khí Tượng</h3>
+                      <p className="cta-card-desc">
+                        Phân tích diễn biến thời tiết 48 giờ tới, biểu đồ xu hướng biên độ nhiệt và lượng mưa 14 ngày, so sánh đối chiếu hai mô hình OpenWeather & Open-Meteo.
+                      </p>
+                    </div>
+                    <button className="cta-button primary" onClick={() => goToPage('forecast')}>
+                      <span>Xem Biểu Đồ & 14 Ngày</span>
+                      <span>→</span>
+                    </button>
+                  </div>
+
+                  {/* Card 2: Bản đồ Vệ tinh & Radar */}
+                  <div className="cta-action-card">
+                    <div>
+                      <div className="cta-card-top">
+                        <div className="cta-card-icon-box">🛰️</div>
+                        <span className="cta-card-badge purple">THỜI GIAN THỰC</span>
+                      </div>
+                      <h3 className="cta-card-title">Bản Đồ Vệ Tinh & Radar Mây Mưa</h3>
+                      <p className="cta-card-desc">
+                        Quan sát hình ảnh chụp vệ tinh địa hình ven biển ESRI độ nét cao, lớp phủ mây mưa Radar trực tiếp từ RainViewer và click bất kỳ đâu để tra cứu.
+                      </p>
+                    </div>
+                    <button className="cta-button secondary" onClick={() => goToPage('map')}>
+                      <span>Mở Bản Đồ Vệ Tinh & Radar</span>
+                      <span>→</span>
+                    </button>
+                  </div>
+
+                  {/* Card 3: Không khí & Sức khỏe */}
+                  <div className="cta-action-card">
+                    <div>
+                      <div className="cta-card-top">
+                        <div className="cta-card-icon-box">🍃</div>
+                        <span className="cta-card-badge emerald">SỨC KHỎE & UV</span>
+                      </div>
+                      <h3 className="cta-card-title">Chất Lượng Không Khí & Khí Tượng</h3>
+                      <p className="cta-card-desc">
+                        Theo dõi chỉ số ô nhiễm không khí AQI, nồng độ bụi mịn PM2.5, chỉ số bức xạ cực tím UV, giờ mặt trời mọc/lặn, hướng gió và áp suất khí quyển.
+                      </p>
+                    </div>
+                    <button className="cta-button emerald" onClick={() => goToPage('air')}>
+                      <span>Xem Chỉ Số Không Khí & UV</span>
+                      <span>→</span>
+                    </button>
+                  </div>
+
+                  {/* Card 4: Mobile App */}
+                  <div className="cta-action-card">
+                    <div>
+                      <div className="cta-card-top">
+                        <div className="cta-card-icon-box">📱</div>
+                        <span className="cta-card-badge amber">ANDROID APK MIỄN PHÍ</span>
+                      </div>
+                      <h3 className="cta-card-title">Ứng Dụng Di Động SkyCast</h3>
+                      <p className="cta-card-desc">
+                        Cài đặt ứng dụng di động độc lập cho điện thoại Android, tự động định vị GPS, tra cứu radar mượt mà và kho ảnh phong cảnh 2K cho 63 tỉnh thành.
+                      </p>
+                    </div>
+                    <button className="cta-button amber" onClick={() => goToPage('mobile')}>
+                      <span>Tải File APK Cho Android</span>
+                      <span>→</span>
+                    </button>
+                  </div>
+                </div>
+              </section>
+            </>
+          )}
+
+          {/* ========================================================
+              TRANG 2: DỰ BÁO CHI TIẾT & BIỂU ĐỒ (FORECAST & CHARTS)
+              ======================================================== */}
+          {activePage === 'forecast' && (
+            <>
+              <div className="subpage-header-row">
+                <div>
+                  <div className="subpage-breadcrumb">
+                    <button onClick={() => goToPage('overview')}>🏠 Tổng quan</button>
+                    <span>/</span>
+                    <span className="current">Dự báo & Biểu đồ</span>
+                  </div>
+                  <h2>📊 Dự Báo Chi Tiết & Biểu Đồ Khí Tượng</h2>
+                  <p className="subpage-subtitle">
+                    Phân tích chu kỳ thời tiết 48 giờ, dự báo 14 ngày tới tại <strong>{activeLocationName}</strong> và đối chiếu mô hình.
                   </p>
                 </div>
-
-                <div className="pollutant-grid">
-                  <div className="pollutant-card">
-                    <span className="pollutant-name">Bụi mịn PM2.5</span>
-                    <span className="pollutant-val">{aq.pm25} <small style={{ fontSize: '0.7rem' }}>µg/m³</small></span>
-                  </div>
-                  <div className="pollutant-card">
-                    <span className="pollutant-name">Bụi PM10</span>
-                    <span className="pollutant-val">{aq.pm10} <small style={{ fontSize: '0.7rem' }}>µg/m³</small></span>
-                  </div>
-                  <div className="pollutant-card">
-                    <span className="pollutant-name">Khí Ozone (O₃)</span>
-                    <span className="pollutant-val">{aq.o3} <small style={{ fontSize: '0.7rem' }}>µg/m³</small></span>
-                  </div>
-                  <div className="pollutant-card">
-                    <span className="pollutant-name">Khí NO₂</span>
-                    <span className="pollutant-val">{aq.no2} <small style={{ fontSize: '0.7rem' }}>µg/m³</small></span>
-                  </div>
-                </div>
+                <button className="back-to-home-btn" onClick={() => goToPage('overview')}>
+                  ← Quay lại Tổng quan
+                </button>
               </div>
-            </section>
-          )}
 
-          {/* ===== BẢN ĐỒ THỜI TIẾT TƯƠNG TÁC VỆ TINH & RADAR (LEAFLET SATELLITE MAP) ===== */}
-          <section className="card">
-            <h2>🛰️ Bản đồ thời tiết tương tác vệ tinh & Radar mây mưa</h2>
-            <p style={{ fontSize: '0.86rem', color: 'var(--text-sub)', marginBottom: 14 }}>
-              Theo dõi hình ảnh chụp vệ tinh địa hình ven biển và lớp phủ mây mưa Radar thời gian thực. Bấm vào bất kỳ đâu trên bản đồ để tra cứu thời tiết.
-            </p>
-            <WeatherMap
-              lat={place.lat}
-              lon={place.lon}
-              name={place.name === 'Vị trí hiện tại của bạn' ? c.name || place.name : place.name}
-              temp={`${convertT(c.temp)}${unitLabel}`}
-              onSelectLocation={(newPlace) => setPlace(newPlace)}
-              onRecenter={getCurrentLocation}
-            />
-          </section>
-
-          {/* ===== HỆ THỐNG CẢNH BÁO THỜI TIẾT NGUY HIỂM (ALERT SYSTEM) ===== */}
-          {data.alerts.length > 0 ? (
-            <section className="alerts-box">
-              {data.alerts.map((a, i) => (
-                <div key={i} className={`alert-row ${a.level}`}>
-                  <span style={{ fontSize: '1.2rem' }}>{a.level === 'danger' ? '🚨' : '⚠️'}</span>
+              {/* BIỂU ĐỒ 1: 48 GIỜ */}
+              <section className="card">
+                <div className="chart-header-row">
                   <div>
-                    <strong>{a.title}:</strong> {a.msg}
+                    <h2>⏱️ Diễn biến thời tiết 48 giờ tới</h2>
+                    {kpi48h && (
+                      <div className="chart-kpi-bar" style={{ marginTop: 6, marginBottom: 0 }}>
+                        <span className="chart-kpi-pill">🔥 Cao nhất: <strong>{kpi48h.maxTemp}{unitLabel}</strong></span>
+                        <span className="chart-kpi-pill">❄️ Thấp nhất: <strong>{kpi48h.minTemp}{unitLabel}</strong></span>
+                        <span className="chart-kpi-pill">💧 Mưa đỉnh điểm: <strong>{kpi48h.maxPop}% ({kpi48h.maxPopTime})</strong></span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="chart-tabs">
+                    <button className={`chart-tab-btn ${chartView48 === 'all' ? 'active' : ''}`} onClick={() => setChartView48('all')}>🌡️💧 Kết hợp</button>
+                    <button className={`chart-tab-btn ${chartView48 === 'temp' ? 'active' : ''}`} onClick={() => setChartView48('temp')}>🔥 Chỉ nhiệt độ</button>
+                    <button className={`chart-tab-btn ${chartView48 === 'pop' ? 'active' : ''}`} onClick={() => setChartView48('pop')}>🌧️ Chỉ xác suất mưa</button>
                   </div>
                 </div>
-              ))}
-            </section>
-          ) : (
-            <p className="ok-banner">
-              ✅ <strong>An toàn:</strong> Không có cảnh báo thời tiết cực đoan nguy hiểm trong 3 ngày tới tại khu vực này.
-            </p>
+                <ChartBox config={hourCfg} isLightMode={isLightMode} />
+              </section>
+
+              {/* DỰ BÁO 14 NGÀY CARD */}
+              <section className="card">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                  <h2 style={{ margin: 0 }}>📅 Dự báo hàng ngày (14 ngày tới)</h2>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Bấm vào ngày để xem chi tiết 👆</span>
+                </div>
+                <div className="daily-grid">
+                  {data.daily.map((d, i) => (
+                    <div className="day-card" key={i} onClick={() => setSelectedDay(d)} title="Bấm để xem chi tiết ngày này">
+                      <div className="day-name">{fmtDay(d.date)}</div>
+                      <div className="day-icon">{weatherEmoji(d.text)}</div>
+                      <div className="day-temps">
+                        {convertT(d.max)}° <span>/ {convertT(d.min)}°</span>
+                      </div>
+                      {d.rain > 0 ? (
+                        <div className="day-rain">💧 {d.rain} mm</div>
+                      ) : (
+                        <div className="day-rain" style={{ opacity: 0.45 }}>Ráo</div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              {/* BIỂU ĐỒ 2: XU HƯỚNG 14 NGÀY */}
+              <section className="card">
+                <div className="chart-header-row">
+                  <div>
+                    <h2>📈 Xu hướng biên độ nhiệt & lượng mưa (14 ngày)</h2>
+                    {kpi14d && (
+                      <div className="chart-kpi-bar" style={{ marginTop: 6, marginBottom: 0 }}>
+                        <span className="chart-kpi-pill">🔥 Đỉnh nhiệt: <strong>{kpi14d.maxTemp}{unitLabel}</strong></span>
+                        <span className="chart-kpi-pill">❄️ Đáy nhiệt: <strong>{kpi14d.minTemp}{unitLabel}</strong></span>
+                        <span className="chart-kpi-pill">🌧️ Tổng mưa dự kiến: <strong>{kpi14d.totalRain} mm ({kpi14d.rainyDays} ngày mưa)</strong></span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="chart-tabs">
+                    <button className={`chart-tab-btn ${chartView14 === 'all' ? 'active' : ''}`} onClick={() => setChartView14('all')}>📊 Tổng quan biên độ</button>
+                    <button className={`chart-tab-btn ${chartView14 === 'temp' ? 'active' : ''}`} onClick={() => setChartView14('temp')}>🌡️ Biên độ nhiệt</button>
+                    <button className={`chart-tab-btn ${chartView14 === 'rain' ? 'active' : ''}`} onClick={() => setChartView14('rain')}>🌧️ Cột lượng mưa</button>
+                  </div>
+                </div>
+                <ChartBox config={dayCfg} isLightMode={isLightMode} />
+              </section>
+
+              {/* SO SÁNH ĐA NGUỒN */}
+              <section className="card">
+                <h2>⚖️ So sánh đối chiếu hai nguồn dữ liệu độc lập</h2>
+                {consensusRating && (
+                  <div style={{ background: 'var(--card-subtle)', padding: '12px 16px', borderRadius: 12, marginBottom: 16, border: '1px solid var(--glass-border)', borderLeft: `4px solid ${consensusRating.color}` }}>
+                    <div style={{ fontWeight: 700, color: consensusRating.color, marginBottom: 2 }}>Mức độ đồng thuận: {consensusRating.text}</div>
+                    <div style={{ fontSize: '0.85rem', color: 'var(--text-sub)' }}>{consensusRating.desc}</div>
+                  </div>
+                )}
+                <div className="scroll">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Ngày</th>
+                        <th>OpenWeatherMap (Mỹ/Anh)</th>
+                        <th>Open-Meteo (Châu Âu)</th>
+                        <th>Chênh lệch nhiệt độ cao nhất</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {data.daily.filter((d) => d.owm).map((d) => (
+                        <tr key={d.date}>
+                          <td><strong>{fmtDay(d.date)}</strong></td>
+                          <td>{convertT(d.owm.min)}–{convertT(d.owm.max)}{unitLabel} (mưa {d.owm.rain} mm)</td>
+                          <td>{convertT(d.min)}–{convertT(d.max)}{unitLabel} (mưa {d.rain} mm)</td>
+                          <td>
+                            <span style={{ fontWeight: 700, color: Math.abs(d.owm.max - d.max) >= 2 ? '#f59e0b' : 'inherit' }}>
+                              {(d.owm.max - d.max).toFixed(1)}°C
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+
+              {/* Subpage nav footer */}
+              <div className="subpage-nav-footer">
+                <button className="subpage-nav-link-btn" onClick={() => goToPage('map')}>
+                  🛰️ Mở Bản Đồ Vệ Tinh & Radar Mây Mưa →
+                </button>
+                <button className="subpage-nav-link-btn" onClick={() => goToPage('air')}>
+                  🍃 Xem Chỉ Số Không Khí & Sức Khỏe →
+                </button>
+                <button className="subpage-nav-link-btn" onClick={() => goToPage('mobile')}>
+                  📱 Tải Ứng Dụng Di Động Android →
+                </button>
+              </div>
+            </>
           )}
 
-          {/* ===== BỘ THẺ WIDGET KHÍ TƯỢNG CHUYÊN SÂU (METEOROLOGICAL GRID - APPLE WEATHER) ===== */}
-          <section className="card">
-            <h2>🧭 Thông số khí tượng chuyên sâu</h2>
-            <div className="meteo-details-grid">
-              {/* Thẻ Chỉ số UV */}
-              <div className="meteo-card">
+          {/* ========================================================
+              TRANG 3: BẢN ĐỒ RADAR & VỆ TINH (RADAR & MAP)
+              ======================================================== */}
+          {activePage === 'map' && (
+            <>
+              <div className="subpage-header-row">
                 <div>
-                  <div className="meteo-header">
-                    <span>☀️</span>
-                    <span>Chỉ số tia UV</span>
+                  <div className="subpage-breadcrumb">
+                    <button onClick={() => goToPage('overview')}>🏠 Tổng quan</button>
+                    <span>/</span>
+                    <span className="current">Bản đồ Radar</span>
                   </div>
-                  <div className="meteo-value" style={{ color: uvInfo.color }}>
-                    {c.uv != null ? c.uv : '--'} <span style={{ fontSize: '1rem', fontWeight: 600 }}>({uvInfo.level})</span>
-                  </div>
-                  <div className="uv-bar">
-                    <div className="uv-dot" style={{ left: `${uvInfo.pct}%` }} />
-                  </div>
+                  <h2>🛰️ Bản Đồ Vệ Tinh & Radar Mây Mưa Thời Gian Thực</h2>
+                  <p className="subpage-subtitle">
+                    Quan sát chụp ảnh vệ tinh ESRI độ nét cao và lớp phủ radar mây mưa RainViewer. Bấm bất kỳ đâu trên bản đồ để tra cứu thời tiết.
+                  </p>
                 </div>
-                <div className="meteo-desc">{uvInfo.advice}</div>
-              </div>
-
-              {/* Thẻ Mặt trời mọc & lặn */}
-              <div className="meteo-card">
-                <div>
-                  <div className="meteo-header">
-                    <span>🌅</span>
-                    <span>Mặt trời mọc & Lặn</span>
-                  </div>
-                  <div className="meteo-value" style={{ fontSize: '1.45rem' }}>
-                    {fmtTimeOnly(c.sunrise)} <span style={{ fontSize: '0.9rem', color: 'var(--text-sub)' }}>mọc</span> · {fmtTimeOnly(c.sunset)} <span style={{ fontSize: '0.9rem', color: 'var(--text-sub)' }}>lặn</span>
-                  </div>
-                </div>
-                <div className="meteo-desc">
-                  Ánh sáng ban ngày hỗ trợ tốt cho các hoạt động ngoài trời, tắm biển và thể thao.
-                </div>
-              </div>
-
-              {/* Thẻ Gió & Hướng gió */}
-              <div className="meteo-card">
-                <div>
-                  <div className="meteo-header">
-                    <span>💨</span>
-                    <span>Gió & Hướng thổi</span>
-                  </div>
-                  <div className="meteo-value">
-                    {c.wind} <span style={{ fontSize: '1rem', fontWeight: 500 }}>km/h</span>
-                  </div>
-                </div>
-                <div className="meteo-desc">
-                  Hướng gió: <strong>{c.windDir || 'Chưa xác định'}</strong>. {c.wind >= 39 ? 'Gió khá mạnh, cần chú ý khi ra khơi.' : 'Gió nhẹ, thời tiết êm ả.'}
-                </div>
-              </div>
-
-              {/* Thẻ Tầm nhìn xa */}
-              <div className="meteo-card">
-                <div>
-                  <div className="meteo-header">
-                    <span>👁️</span>
-                    <span>Tầm nhìn xa</span>
-                  </div>
-                  <div className="meteo-value">
-                    {c.visibility} <span style={{ fontSize: '1rem', fontWeight: 500 }}>km</span>
-                  </div>
-                </div>
-                <div className="meteo-desc">
-                  {c.visibility >= 9 ? 'Tầm nhìn hoàn hảo, quang đãng.' : 'Tầm nhìn bị hạn chế bởi sương mù hoặc mưa rào.'}
-                </div>
-              </div>
-
-              {/* Thẻ Độ che phủ mây */}
-              <div className="meteo-card">
-                <div>
-                  <div className="meteo-header">
-                    <span>☁️</span>
-                    <span>Độ che phủ mây</span>
-                  </div>
-                  <div className="meteo-value">
-                    {c.clouds}%
-                  </div>
-                </div>
-                <div className="meteo-desc">
-                  {c.clouds <= 20 ? 'Bầu trời quang đãng, nhiều nắng.' : c.clouds <= 70 ? 'Trời có mây đan xen nắng dịu.' : 'Trời nhiều mây u ám.'}
-                </div>
-              </div>
-
-              {/* Thẻ Áp suất khí quyển */}
-              <div className="meteo-card">
-                <div>
-                  <div className="meteo-header">
-                    <span>🔽</span>
-                    <span>Áp suất khí quyển</span>
-                  </div>
-                  <div className="meteo-value">
-                    {c.pressure} <span style={{ fontSize: '1rem', fontWeight: 500 }}>hPa</span>
-                  </div>
-                </div>
-                <div className="meteo-desc">
-                  Áp suất khí quyển ở mức tiêu chuẩn ổn định cho vùng ven biển.
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* ===== GỢI Ý HOẠT ĐỘNG THÔNG MINH (RULE-BASED SUGGESTIONS) ===== */}
-          <section className="card">
-            <h2>💡 Gợi ý hoạt động thực tế theo thời tiết</h2>
-            <div className="tips-grid">
-              {data.suggestions.map((s, i) => (
-                <div className="tip-card-item" key={i}>
-                  <span>🎯</span>
-                  <span>{s}</span>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* ===== DỰ BÁO 14 NGÀY DẠNG CARD (CLICK ĐỂ MỞ MODAL CHI TIẾT) ===== */}
-          <section className="card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <h2 style={{ margin: 0 }}>📅 Dự báo hàng ngày (14 ngày tới)</h2>
-              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Bấm vào ngày để xem chi tiết 👆</span>
-            </div>
-            <div className="daily-grid">
-              {data.daily.map((d, i) => (
-                <div className="day-card" key={i} onClick={() => setSelectedDay(d)} title="Bấm để xem chi tiết ngày này">
-                  <div className="day-name">{fmtDay(d.date)}</div>
-                  <div className="day-icon">{weatherEmoji(d.text)}</div>
-                  <div className="day-temps">
-                    {convertT(d.max)}° <span>/ {convertT(d.min)}°</span>
-                  </div>
-                  {d.rain > 0 ? (
-                    <div className="day-rain">💧 {d.rain} mm</div>
-                  ) : (
-                    <div className="day-rain" style={{ opacity: 0.45 }}>Ráo</div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* ===== BIỂU ĐỒ 1: DIỄN BIẾN THỜI TIẾT 48 GIỜ (TRỰC QUAN HÓA CAO CẤP) ===== */}
-          <section className="card">
-            <div className="chart-header-row">
-              <div>
-                <h2>⏱️ Diễn biến thời tiết 48 giờ tới</h2>
-                {kpi48h && (
-                  <div className="chart-kpi-bar" style={{ marginTop: 6, marginBottom: 0 }}>
-                    <span className="chart-kpi-pill">🔥 Cao nhất: <strong>{kpi48h.maxTemp}{unitLabel}</strong></span>
-                    <span className="chart-kpi-pill">❄️ Thấp nhất: <strong>{kpi48h.minTemp}{unitLabel}</strong></span>
-                    <span className="chart-kpi-pill">💧 Mưa đỉnh điểm: <strong>{kpi48h.maxPop}% ({kpi48h.maxPopTime})</strong></span>
-                  </div>
-                )}
-              </div>
-              <div className="chart-tabs">
-                <button
-                  className={`chart-tab-btn ${chartView48 === 'all' ? 'active' : ''}`}
-                  onClick={() => setChartView48('all')}
-                >
-                  🌡️💧 Kết hợp
-                </button>
-                <button
-                  className={`chart-tab-btn ${chartView48 === 'temp' ? 'active' : ''}`}
-                  onClick={() => setChartView48('temp')}
-                >
-                  🔥 Chỉ nhiệt độ
-                </button>
-                <button
-                  className={`chart-tab-btn ${chartView48 === 'pop' ? 'active' : ''}`}
-                  onClick={() => setChartView48('pop')}
-                >
-                  🌧️ Chỉ xác suất mưa
+                <button className="back-to-home-btn" onClick={() => goToPage('overview')}>
+                  ← Quay lại Tổng quan
                 </button>
               </div>
-            </div>
-            <ChartBox config={hourCfg} isLightMode={isLightMode} />
-          </section>
 
-          {/* ===== BIỂU ĐỒ 2: XU HƯỚNG 14 NGÀY (BIÊN ĐỘ NHIỆT & LƯỢNG MƯA TRỰC QUAN) ===== */}
-          <section className="card">
-            <div className="chart-header-row">
-              <div>
-                <h2>📈 Xu hướng biên độ nhiệt & lượng mưa (14 ngày)</h2>
-                {kpi14d && (
-                  <div className="chart-kpi-bar" style={{ marginTop: 6, marginBottom: 0 }}>
-                    <span className="chart-kpi-pill">🔥 Đỉnh nhiệt: <strong>{kpi14d.maxTemp}{unitLabel}</strong></span>
-                    <span className="chart-kpi-pill">❄️ Đáy nhiệt: <strong>{kpi14d.minTemp}{unitLabel}</strong></span>
-                    <span className="chart-kpi-pill">🌧️ Tổng mưa dự kiến: <strong>{kpi14d.totalRain} mm ({kpi14d.rainyDays} ngày mưa)</strong></span>
+              {/* Thẻ vị trí đang chọn */}
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center', justifyContent: 'space-between', background: 'var(--card-bg)', padding: '12px 18px', borderRadius: 16, marginBottom: 16, border: '1px solid var(--glass-border)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <span style={{ fontSize: '1.4rem' }}>📍</span>
+                  <div>
+                    <div style={{ fontWeight: 800, fontSize: '1.05rem', color: 'var(--text-main)' }}>{activeLocationName}</div>
+                    <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                      Tọa độ: {place.lat.toFixed(4)}°N, {place.lon.toFixed(4)}°E · Nhiệt độ: {convertT(c.temp)}{unitLabel}
+                    </div>
                   </div>
-                )}
-              </div>
-              <div className="chart-tabs">
+                </div>
                 <button
-                  className={`chart-tab-btn ${chartView14 === 'all' ? 'active' : ''}`}
-                  onClick={() => setChartView14('all')}
+                  onClick={getCurrentLocation}
+                  style={{ background: 'var(--card-subtle)', border: '1px solid var(--glass-border)', color: 'var(--text-main)', padding: '6px 14px', borderRadius: 20, fontSize: '0.84rem', fontWeight: 600, cursor: 'pointer' }}
                 >
-                  📊 Tổng quan biên độ
-                </button>
-                <button
-                  className={`chart-tab-btn ${chartView14 === 'temp' ? 'active' : ''}`}
-                  onClick={() => setChartView14('temp')}
-                >
-                  🌡️ Biên độ nhiệt
-                </button>
-                <button
-                  className={`chart-tab-btn ${chartView14 === 'rain' ? 'active' : ''}`}
-                  onClick={() => setChartView14('rain')}
-                >
-                  🌧️ Cột lượng mưa
+                  🎯 Về vị trí của tôi
                 </button>
               </div>
-            </div>
-            <ChartBox config={dayCfg} isLightMode={isLightMode} />
-          </section>
 
-          {/* ===== SO SÁNH ĐA NGUỒN (OPENWEATHERMAP VS OPEN-METEO) ===== */}
-          <section className="card">
-            <h2>⚖️ So sánh đối chiếu hai nguồn dữ liệu độc lập</h2>
-            {consensusRating && (
-              <div
-                style={{
-                  background: 'var(--card-subtle)',
-                  padding: '12px 16px',
-                  borderRadius: 12,
-                  marginBottom: 16,
-                  border: '1px solid var(--glass-border)',
-                  borderLeft: `4px solid ${consensusRating.color}`,
-                }}
-              >
-                <div style={{ fontWeight: 700, color: consensusRating.color, marginBottom: 2 }}>
-                  Mức độ đồng thuận: {consensusRating.text}
-                </div>
-                <div style={{ fontSize: '0.85rem', color: 'var(--text-sub)' }}>
-                  {consensusRating.desc}
-                </div>
+              {/* WeatherMap */}
+              <section className="card" style={{ padding: 16 }}>
+                <WeatherMap
+                  lat={place.lat}
+                  lon={place.lon}
+                  name={place.name === 'Vị trí hiện tại của bạn' ? c.name || place.name : place.name}
+                  temp={`${convertT(c.temp)}${unitLabel}`}
+                  onSelectLocation={(newPlace) => setPlace(newPlace)}
+                  onRecenter={getCurrentLocation}
+                />
+              </section>
+
+              <div className="subpage-nav-footer">
+                <button className="subpage-nav-link-btn" onClick={() => goToPage('forecast')}>
+                  📊 Xem Dự Báo & Biểu Đồ 48h →
+                </button>
+                <button className="subpage-nav-link-btn" onClick={() => goToPage('air')}>
+                  🍃 Xem Chỉ Số Không Khí & Sức Khỏe →
+                </button>
+                <button className="subpage-nav-link-btn" onClick={() => goToPage('overview')}>
+                  🏠 Quay Về Trang Tổng Quan →
+                </button>
               </div>
-            )}
-            <div className="scroll">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Ngày</th>
-                    <th>OpenWeatherMap (Mỹ/Anh)</th>
-                    <th>Open-Meteo (Châu Âu)</th>
-                    <th>Chênh lệch nhiệt độ cao nhất</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.daily
-                    .filter((d) => d.owm)
-                    .map((d) => (
-                      <tr key={d.date}>
-                        <td><strong>{fmtDay(d.date)}</strong></td>
-                        <td>{convertT(d.owm.min)}–{convertT(d.owm.max)}{unitLabel} (mưa {d.owm.rain} mm)</td>
-                        <td>{convertT(d.min)}–{convertT(d.max)}{unitLabel} (mưa {d.rain} mm)</td>
-                        <td>
-                          <span
-                            style={{
-                              fontWeight: 700,
-                              color: Math.abs(d.owm.max - d.max) >= 2 ? '#f59e0b' : 'inherit',
-                            }}
-                          >
-                            {(d.owm.max - d.max).toFixed(1)}°C
+            </>
+          )}
+
+          {/* ========================================================
+              TRANG 4: KHÔNG KHÍ & SỨC KHỎE (AIR QUALITY & HEALTH)
+              ======================================================== */}
+          {activePage === 'air' && (
+            <>
+              <div className="subpage-header-row">
+                <div>
+                  <div className="subpage-breadcrumb">
+                    <button onClick={() => goToPage('overview')}>🏠 Tổng quan</button>
+                    <span>/</span>
+                    <span className="current">Không khí & Sức khỏe</span>
+                  </div>
+                  <h2>🍃 Chất Lượng Không Khí & Khí Tượng Chuyên Sâu</h2>
+                  <p className="subpage-subtitle">
+                    Giám sát chỉ số ô nhiễm AQI, bụi mịn PM2.5, bức xạ tia UV và thông số khí tượng tại <strong>{activeLocationName}</strong>.
+                  </p>
+                </div>
+                <button className="back-to-home-btn" onClick={() => goToPage('overview')}>
+                  ← Quay lại Tổng quan
+                </button>
+              </div>
+
+              {/* AQI */}
+              {aq && (
+                <section className="card">
+                  <h2>🍃 Chỉ số Chất lượng không khí (Air Quality Index - AQI)</h2>
+                  <div className="aqi-container">
+                    <div className="aqi-score-box">
+                      <div className="aqi-num-row">
+                        <div className="aqi-number" style={{ color: aqiInfo.color }}>{aq.aqi}</div>
+                        <div>
+                          <span className="aqi-status-badge" style={{ background: `${aqiInfo.color}25`, color: aqiInfo.color, border: `1px solid ${aqiInfo.color}60` }}>
+                            ● {aqiInfo.status}
                           </span>
-                        </td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
+                        </div>
+                      </div>
+                      <div className="aqi-bar-track">
+                        <div className="aqi-dot-marker" style={{ left: `${Math.min(Math.max(aqiInfo.pct, 5), 98)}%` }} />
+                      </div>
+                      <p style={{ fontSize: '0.86rem', color: 'var(--text-sub)', marginTop: 4 }}>
+                        {aqiInfo.desc}
+                      </p>
+                    </div>
 
-          {/* ===== KHU VỰC TẢI ỨNG DỤNG DI ĐỘNG (MOBILE APP APK) ===== */}
-          <MobileAppSection
-            onOpenModal={() => setShowAppModal(true)}
-            showToast={showToast}
-          />
+                    <div className="pollutant-grid">
+                      <div className="pollutant-card">
+                        <span className="pollutant-name">Bụi mịn PM2.5</span>
+                        <span className="pollutant-val">{aq.pm25} <small style={{ fontSize: '0.7rem' }}>µg/m³</small></span>
+                      </div>
+                      <div className="pollutant-card">
+                        <span className="pollutant-name">Bụi PM10</span>
+                        <span className="pollutant-val">{aq.pm10} <small style={{ fontSize: '0.7rem' }}>µg/m³</small></span>
+                      </div>
+                      <div className="pollutant-card">
+                        <span className="pollutant-name">Khí Ozone (O₃)</span>
+                        <span className="pollutant-val">{aq.o3} <small style={{ fontSize: '0.7rem' }}>µg/m³</small></span>
+                      </div>
+                      <div className="pollutant-card">
+                        <span className="pollutant-name">Khí NO₂</span>
+                        <span className="pollutant-val">{aq.no2} <small style={{ fontSize: '0.7rem' }}>µg/m³</small></span>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+              )}
 
-          <footer style={{ textAlign: 'center', padding: '24px 0 16px', fontSize: '0.84rem', color: 'var(--text-muted)' }}>
-            <div style={{ marginBottom: 8 }}>
-              <a
-                href="#download-app"
-                onClick={(e) => {
-                  e.preventDefault();
-                  const el = document.getElementById('download-app');
-                  if (el) el.scrollIntoView({ behavior: 'smooth' });
-                  else setShowAppModal(true);
-                }}
-                style={{ color: '#38bdf8', textDecoration: 'none', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 6 }}
-              >
-                <span>📱</span> Tải Ứng Dụng Di Động Android (APK) · Đồ Án Chuyên Ngành
-              </a>
+              {/* BỘ THẺ WIDGET KHÍ TƯỢNG CHUYÊN SÂU */}
+              <section className="card">
+                <h2>🧭 Thông số khí tượng chuyên sâu</h2>
+                <div className="meteo-details-grid">
+                  <div className="meteo-card">
+                    <div>
+                      <div className="meteo-header">
+                        <span>☀️</span>
+                        <span>Chỉ số tia UV</span>
+                      </div>
+                      <div className="meteo-value" style={{ color: uvInfo.color }}>
+                        {c.uv != null ? c.uv : '--'} <span style={{ fontSize: '1rem', fontWeight: 600 }}>({uvInfo.level})</span>
+                      </div>
+                      <div className="uv-bar">
+                        <div className="uv-dot" style={{ left: `${uvInfo.pct}%` }} />
+                      </div>
+                    </div>
+                    <div className="meteo-desc">{uvInfo.advice}</div>
+                  </div>
+
+                  <div className="meteo-card">
+                    <div>
+                      <div className="meteo-header">
+                        <span>🌅</span>
+                        <span>Mặt trời mọc & Lặn</span>
+                      </div>
+                      <div className="meteo-value" style={{ fontSize: '1.45rem' }}>
+                        {fmtTimeOnly(c.sunrise)} <span style={{ fontSize: '0.9rem', color: 'var(--text-sub)' }}>mọc</span> · {fmtTimeOnly(c.sunset)} <span style={{ fontSize: '0.9rem', color: 'var(--text-sub)' }}>lặn</span>
+                      </div>
+                    </div>
+                    <div className="meteo-desc">
+                      Ánh sáng ban ngày hỗ trợ tốt cho các hoạt động ngoài trời, tắm biển và thể thao.
+                    </div>
+                  </div>
+
+                  <div className="meteo-card">
+                    <div>
+                      <div className="meteo-header">
+                        <span>💨</span>
+                        <span>Gió & Hướng thổi</span>
+                      </div>
+                      <div className="meteo-value">
+                        {c.wind} <span style={{ fontSize: '1rem', fontWeight: 500 }}>km/h</span>
+                      </div>
+                    </div>
+                    <div className="meteo-desc">
+                      Hướng gió: <strong>{c.windDir || 'Chưa xác định'}</strong>. {c.wind >= 39 ? 'Gió khá mạnh, cần chú ý khi ra khơi.' : 'Gió nhẹ, thời tiết êm ả.'}
+                    </div>
+                  </div>
+
+                  <div className="meteo-card">
+                    <div>
+                      <div className="meteo-header">
+                        <span>👁️</span>
+                        <span>Tầm nhìn xa</span>
+                      </div>
+                      <div className="meteo-value">
+                        {c.visibility} <span style={{ fontSize: '1rem', fontWeight: 500 }}>km</span>
+                      </div>
+                    </div>
+                    <div className="meteo-desc">
+                      {c.visibility >= 9 ? 'Tầm nhìn hoàn hảo, quang đãng.' : 'Tầm nhìn bị hạn chế bởi sương mù hoặc mưa rào.'}
+                    </div>
+                  </div>
+
+                  <div className="meteo-card">
+                    <div>
+                      <div className="meteo-header">
+                        <span>☁️</span>
+                        <span>Độ che phủ mây</span>
+                      </div>
+                      <div className="meteo-value">
+                        {c.clouds}%
+                      </div>
+                    </div>
+                    <div className="meteo-desc">
+                      {c.clouds <= 20 ? 'Bầu trời quang đãng, nhiều nắng.' : c.clouds <= 70 ? 'Trời có mây đan xen nắng dịu.' : 'Trời nhiều mây u ám.'}
+                    </div>
+                  </div>
+
+                  <div className="meteo-card">
+                    <div>
+                      <div className="meteo-header">
+                        <span>🔽</span>
+                        <span>Áp suất khí quyển</span>
+                      </div>
+                      <div className="meteo-value">
+                        {c.pressure} <span style={{ fontSize: '1rem', fontWeight: 500 }}>hPa</span>
+                      </div>
+                    </div>
+                    <div className="meteo-desc">
+                      Áp suất khí quyển ở mức tiêu chuẩn ổn định cho vùng địa lý.
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              {/* Gợi ý hoạt động */}
+              <section className="card">
+                <h2>💡 Khuyến nghị sức khỏe & Lối sống hôm nay</h2>
+                <div className="tips-grid">
+                  {data.suggestions.map((s, i) => (
+                    <div className="tip-card-item" key={i}>
+                      <span>🎯</span>
+                      <span>{s}</span>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              <div className="subpage-nav-footer">
+                <button className="subpage-nav-link-btn" onClick={() => goToPage('map')}>
+                  🛰️ Xem Bản Đồ Vệ Tinh & Radar →
+                </button>
+                <button className="subpage-nav-link-btn" onClick={() => goToPage('forecast')}>
+                  📊 Xem Dự Báo 48h & 14 Ngày →
+                </button>
+                <button className="subpage-nav-link-btn" onClick={() => goToPage('overview')}>
+                  🏠 Quay Về Trang Tổng Quan →
+                </button>
+              </div>
+            </>
+          )}
+
+          {/* ========================================================
+              TRANG 5: TẢI ỨNG DỤNG DI ĐỘNG (MOBILE APP DOWNLOAD)
+              ======================================================== */}
+          {activePage === 'mobile' && (
+            <>
+              <div className="subpage-header-row">
+                <div>
+                  <div className="subpage-breadcrumb">
+                    <button onClick={() => goToPage('overview')}>🏠 Tổng quan</button>
+                    <span>/</span>
+                    <span className="current">Tải Ứng Dụng</span>
+                  </div>
+                  <h2>📱 Ứng Dụng Di Động SkyCast Cho Android</h2>
+                  <p className="subpage-subtitle">
+                    Cài đặt trực tiếp file APK hoặc quét mã QR bằng Camera điện thoại thông minh để sử dụng mọi lúc mọi nơi.
+                  </p>
+                </div>
+                <button className="back-to-home-btn" onClick={() => goToPage('overview')}>
+                  ← Quay lại Tổng quan
+                </button>
+              </div>
+
+              <MobileAppSection
+                onOpenModal={() => setShowAppModal(true)}
+                showToast={showToast}
+              />
+
+              <div className="subpage-nav-footer">
+                <button className="subpage-nav-link-btn" onClick={() => goToPage('overview')}>
+                  🏠 Quay Về Trang Tổng Quan →
+                </button>
+                <button className="subpage-nav-link-btn" onClick={() => goToPage('forecast')}>
+                  📊 Xem Dự Báo & Biểu Đồ →
+                </button>
+                <button className="subpage-nav-link-btn" onClick={() => goToPage('map')}>
+                  🛰️ Mở Bản Đồ Vệ Tinh & Radar →
+                </button>
+              </div>
+            </>
+          )}
+
+          {/* FOOTER CHUNG */}
+          <footer style={{ textAlign: 'center', padding: '30px 0 20px', fontSize: '0.84rem', color: 'var(--text-muted)', borderTop: '1px solid var(--glass-border)', marginTop: 24 }}>
+            <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 16, marginBottom: 12 }}>
+              <button onClick={() => goToPage('overview')} style={{ background: 'transparent', border: 0, color: 'var(--text-sub)', cursor: 'pointer', fontSize: '0.84rem', fontWeight: 600 }}>🏠 Tổng quan</button>
+              <button onClick={() => goToPage('forecast')} style={{ background: 'transparent', border: 0, color: 'var(--text-sub)', cursor: 'pointer', fontSize: '0.84rem', fontWeight: 600 }}>📊 Dự báo & Biểu đồ</button>
+              <button onClick={() => goToPage('map')} style={{ background: 'transparent', border: 0, color: 'var(--text-sub)', cursor: 'pointer', fontSize: '0.84rem', fontWeight: 600 }}>🛰️ Bản đồ Radar</button>
+              <button onClick={() => goToPage('air')} style={{ background: 'transparent', border: 0, color: 'var(--text-sub)', cursor: 'pointer', fontSize: '0.84rem', fontWeight: 600 }}>🍃 Không khí & Sức khỏe</button>
+              <button onClick={() => goToPage('mobile')} style={{ background: 'transparent', border: 0, color: '#38bdf8', cursor: 'pointer', fontSize: '0.84rem', fontWeight: 700 }}>📱 Tải App Mobile (APK)</button>
             </div>
-            Cập nhật lúc {new Date(data.updatedAt).toLocaleTimeString('vi-VN')} · Dữ liệu thời tiết thời gian thực đa nguồn
+            <div>
+              SkyCast VN · Cập nhật lúc {new Date(data.updatedAt).toLocaleTimeString('vi-VN')} · Dữ liệu thời tiết thời gian thực đa nguồn
+            </div>
           </footer>
         </>
       )}
