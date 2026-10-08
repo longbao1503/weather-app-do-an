@@ -525,6 +525,67 @@ function ChartBox({ config, isLightMode }) {
   return <div className="chart"><canvas ref={ref} /></div>;
 }
 
+/* Banner phong cảnh đồng bộ ảnh 2K cho tất cả các trang chuyên sâu */
+function SubpageScenicBanner({
+  bannerData,
+  activeLocationName,
+  title,
+  icon,
+  description,
+  temp,
+  weatherDesc,
+  onBack,
+}) {
+  return (
+    <section className="subpage-scenic-banner">
+      <img
+        className="subpage-backdrop-img"
+        src={bannerData.url}
+        alt={bannerData.title || 'Weather scenic atmosphere'}
+        loading="lazy"
+      />
+      <div className="subpage-overlay-mask" />
+
+      <div className="subpage-banner-content">
+        <div className="subpage-banner-top">
+          <div className="subpage-breadcrumb-glass">
+            <button onClick={onBack}>🏠 Tổng quan</button>
+            <span>/</span>
+            <span className="current">{title}</span>
+          </div>
+
+          {bannerData.title && (
+            <div className="hero-scenic-badge">
+              📸 {bannerData.title}
+            </div>
+          )}
+        </div>
+
+        <div className="subpage-banner-main">
+          <div className="subpage-banner-titles">
+            <h2><span>{icon}</span> <span>{title}</span></h2>
+            <p className="subpage-banner-desc">{description}</p>
+          </div>
+
+          <div className="subpage-banner-actions">
+            <div className="subpage-quick-loc-chip">
+              <span className="loc-pin">📍</span>
+              <span className="loc-name">{activeLocationName}</span>
+              <span className="loc-sep">·</span>
+              <span className="loc-temp">{temp}</span>
+              <span className="loc-sep">·</span>
+              <span className="loc-desc">{weatherDesc}</span>
+            </div>
+            <button className="subpage-back-btn" onClick={onBack}>
+              ← Quay lại Tổng quan
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function App() {
   const [place, setPlace] = useState(null);
   const [data, setData] = useState(null);
@@ -1407,22 +1468,16 @@ export default function App() {
               ======================================================== */}
           {activePage === 'forecast' && (
             <>
-              <div className="subpage-header-row">
-                <div>
-                  <div className="subpage-breadcrumb">
-                    <button onClick={() => goToPage('overview')}>🏠 Tổng quan</button>
-                    <span>/</span>
-                    <span className="current">Dự báo & Biểu đồ</span>
-                  </div>
-                  <h2>📊 Dự Báo Chi Tiết & Biểu Đồ Khí Tượng</h2>
-                  <p className="subpage-subtitle">
-                    Phân tích chu kỳ thời tiết 48 giờ, dự báo 14 ngày tới tại <strong>{activeLocationName}</strong> và đối chiếu mô hình.
-                  </p>
-                </div>
-                <button className="back-to-home-btn" onClick={() => goToPage('overview')}>
-                  ← Quay lại Tổng quan
-                </button>
-              </div>
+              <SubpageScenicBanner
+                bannerData={bannerData}
+                activeLocationName={activeLocationName}
+                title="Dự Báo Chi Tiết & Biểu Đồ"
+                icon="📊"
+                description={`Phân tích chu kỳ thời tiết 48 giờ, dự báo 14 ngày tới tại ${activeLocationName} và đối chiếu mô hình đa nguồn.`}
+                temp={`${convertT(c.temp)}${unitLabel}`}
+                weatherDesc={c.desc}
+                onBack={() => goToPage('overview')}
+              />
 
               {/* BIỂU ĐỒ 1: 48 GIỜ */}
               <section className="card">
@@ -1549,22 +1604,16 @@ export default function App() {
               ======================================================== */}
           {activePage === 'map' && (
             <>
-              <div className="subpage-header-row">
-                <div>
-                  <div className="subpage-breadcrumb">
-                    <button onClick={() => goToPage('overview')}>🏠 Tổng quan</button>
-                    <span>/</span>
-                    <span className="current">Bản đồ Radar</span>
-                  </div>
-                  <h2>🛰️ Bản Đồ Vệ Tinh & Radar Mây Mưa Thời Gian Thực</h2>
-                  <p className="subpage-subtitle">
-                    Quan sát chụp ảnh vệ tinh ESRI độ nét cao và lớp phủ radar mây mưa RainViewer. Bấm bất kỳ đâu trên bản đồ để tra cứu thời tiết.
-                  </p>
-                </div>
-                <button className="back-to-home-btn" onClick={() => goToPage('overview')}>
-                  ← Quay lại Tổng quan
-                </button>
-              </div>
+              <SubpageScenicBanner
+                bannerData={bannerData}
+                activeLocationName={activeLocationName}
+                title="Bản Đồ Vệ Tinh & Radar"
+                icon="🛰️"
+                description="Quan sát ảnh chụp vệ tinh ESRI độ nét cao và lớp phủ radar quét mây mưa trực tiếp từ RainViewer. Bấm bất kỳ đâu trên bản đồ để tra cứu."
+                temp={`${convertT(c.temp)}${unitLabel}`}
+                weatherDesc={c.desc}
+                onBack={() => goToPage('overview')}
+              />
 
               {/* Thẻ vị trí đang chọn */}
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center', justifyContent: 'space-between', background: 'var(--card-bg)', padding: '12px 18px', borderRadius: 16, marginBottom: 16, border: '1px solid var(--glass-border)' }}>
@@ -1616,22 +1665,16 @@ export default function App() {
               ======================================================== */}
           {activePage === 'air' && (
             <>
-              <div className="subpage-header-row">
-                <div>
-                  <div className="subpage-breadcrumb">
-                    <button onClick={() => goToPage('overview')}>🏠 Tổng quan</button>
-                    <span>/</span>
-                    <span className="current">Không khí & Sức khỏe</span>
-                  </div>
-                  <h2>🍃 Chất Lượng Không Khí & Khí Tượng Chuyên Sâu</h2>
-                  <p className="subpage-subtitle">
-                    Giám sát chỉ số ô nhiễm AQI, bụi mịn PM2.5, bức xạ tia UV và thông số khí tượng tại <strong>{activeLocationName}</strong>.
-                  </p>
-                </div>
-                <button className="back-to-home-btn" onClick={() => goToPage('overview')}>
-                  ← Quay lại Tổng quan
-                </button>
-              </div>
+              <SubpageScenicBanner
+                bannerData={bannerData}
+                activeLocationName={activeLocationName}
+                title="Không Khí & Khí Tượng"
+                icon="🍃"
+                description={`Giám sát chỉ số ô nhiễm AQI, bụi mịn PM2.5, bức xạ tia UV và thông số khí tượng chuyên sâu tại ${activeLocationName}.`}
+                temp={`${convertT(c.temp)}${unitLabel}`}
+                weatherDesc={c.desc}
+                onBack={() => goToPage('overview')}
+              />
 
               {/* AQI */}
               {aq && (
@@ -1806,22 +1849,16 @@ export default function App() {
               ======================================================== */}
           {activePage === 'mobile' && (
             <>
-              <div className="subpage-header-row">
-                <div>
-                  <div className="subpage-breadcrumb">
-                    <button onClick={() => goToPage('overview')}>🏠 Tổng quan</button>
-                    <span>/</span>
-                    <span className="current">Tải Ứng Dụng</span>
-                  </div>
-                  <h2>📱 Ứng Dụng Di Động SkyCast Cho Android</h2>
-                  <p className="subpage-subtitle">
-                    Cài đặt trực tiếp file APK hoặc quét mã QR bằng Camera điện thoại thông minh để sử dụng mọi lúc mọi nơi.
-                  </p>
-                </div>
-                <button className="back-to-home-btn" onClick={() => goToPage('overview')}>
-                  ← Quay lại Tổng quan
-                </button>
-              </div>
+              <SubpageScenicBanner
+                bannerData={bannerData}
+                activeLocationName={activeLocationName}
+                title="Ứng Dụng Di Động SkyCast"
+                icon="📱"
+                description={`Cài đặt trực tiếp file APK hoặc quét mã QR bằng Camera điện thoại thông minh để sử dụng mọi lúc mọi nơi tại ${activeLocationName}.`}
+                temp={`${convertT(c.temp)}${unitLabel}`}
+                weatherDesc={c.desc}
+                onBack={() => goToPage('overview')}
+              />
 
               <MobileAppSection
                 onOpenModal={() => setShowAppModal(true)}
