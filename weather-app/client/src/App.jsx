@@ -1079,7 +1079,7 @@ export default function App() {
             title="Chất lượng không khí AQI và tia UV"
           >
             <span className="tab-icon">🍃</span>
-            <span className="tab-text">Không khí & Sức khỏe</span>
+            <span className="tab-text">Không khí & UV</span>
           </button>
           <button
             className={`nav-tab-btn ${activePage === 'mobile' ? 'active' : ''}`}
