@@ -1601,11 +1601,18 @@ input:focus {
   white-space: nowrap;
 }
 
-/* Grid của thẻ gợi ý hình ảnh */
+/* Grid của thẻ gợi ý hình ảnh - Khớp chuẩn 3x2 đối xứng */
 .suggestions-visual-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(285px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 20px;
+}
+
+@media (max-width: 980px) {
+  .suggestions-visual-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+  }
 }
 
 .suggestion-visual-card {

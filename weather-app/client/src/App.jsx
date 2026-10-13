@@ -619,7 +619,7 @@ function getEnrichedSuggestions(weatherData, place) {
   const suggestions = [];
 
   // ==========================================
-  // 1. TRẢI NGHIỆM ĐỊA PHƯƠNG & THIÊN NHIÊN
+  // 1. TRẢI NGHIỆM ĐỊA PHƯƠNG & THIÊN NHIÊN (Slot 1)
   // ==========================================
   if (isThunder) {
     suggestions.push({
@@ -636,33 +636,18 @@ function getEnrichedSuggestions(weatherData, place) {
     });
   } else if (isCoastal) {
     if (isRainy) {
-      if (seed % 2 === 0) {
-        suggestions.push({
-          title: 'Thưởng Thức Hải Sản Nướng & Lẩu Nóng Ven Vịnh',
-          desc: `Mưa biển se mát là thời điểm tuyệt nhất để thưởng thức ghẹ hấp sả, mực một nắng nướng muối ớt và lẩu hải sản chua cay thơm nức tại ${place?.name || 'ven biển'}.`,
-          category: 'ẨM THỰC ĐẶC SẢN BIỂN',
-          status: 'TUYỆT HẢO',
-          statusType: 'success',
-          icon: '🦀',
-          theme: 'amber',
-          timeHint: '17h00 – 21h00',
-          locationHint: 'Làng chài / Quán ven biển',
-          image: 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=700&q=80',
-        });
-      } else {
-        suggestions.push({
-          title: 'Ngắm Sóng Biển & Trò Chuyện Tại Quán Cafe Ven Đồi',
-          desc: 'Lắng nghe tiếng mưa hòa cùng tiếng sóng vỗ rì rào từ vị trí trên cao, nhâm nhi tách trà ấm và ngắm trọn cảnh vịnh biển thơ mộng.',
-          category: 'THƯ THÁI VEN BIỂN',
-          status: 'LÃNG MẠN',
-          statusType: 'info',
-          icon: '🌊',
-          theme: 'blue',
-          timeHint: '14h30 – 18h00',
-          locationHint: 'Quán cafe view biển',
-          image: 'https://images.unsplash.com/photo-1517256064527-09c73fc73e38?auto=format&fit=crop&w=700&q=80',
-        });
-      }
+      suggestions.push({
+        title: 'Ngắm Sóng Biển & Trò Chuyện Tại Quán Cafe Ven Đồi',
+        desc: 'Lắng nghe tiếng mưa hòa cùng tiếng sóng vỗ rì rào từ vị trí trên cao, nhâm nhi tách trà ấm và ngắm trọn cảnh vịnh biển thơ mộng.',
+        category: 'THƯ THÁI VEN BIỂN',
+        status: 'LÃNG MẠN',
+        statusType: 'info',
+        icon: '🌊',
+        theme: 'blue',
+        timeHint: '14h30 – 18h00',
+        locationHint: 'Quán cafe view biển',
+        image: 'https://images.unsplash.com/photo-1517256064527-09c73fc73e38?auto=format&fit=crop&w=700&q=80',
+      });
     } else if (wind < 28 && (isClear || isCool || isHot)) {
       if (seed % 2 === 0) {
         suggestions.push({
@@ -708,20 +693,20 @@ function getEnrichedSuggestions(weatherData, place) {
   } else if (isHighland) {
     if (isRainy || isCold) {
       suggestions.push({
-        title: 'Thưởng Thức Lẩu Nóng & BBQ Than Hồng Cao Nguyên',
-        desc: 'Trong cái se lạnh của phố núi, quây quần bên bếp than hồng xì xèo cùng nồi lẩu thơm lừng bốc khói ấm sực lòng người.',
-        category: 'ẨM THỰC ĐẶC SẢN NÚI',
-        status: 'HOÀN HẢO',
-        statusType: 'success',
-        icon: '🍲',
-        theme: 'amber',
-        timeHint: '17h30 – 21h30',
-        locationHint: 'Quán nướng sân vườn phố núi',
-        image: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=700&q=80',
+        title: 'Tản Bộ Rừng Thông & Cảm Nhận Không Khí Se Lạnh',
+        desc: 'Tiết trời mù sương mát lạnh, dạo bước dưới tán thông reo vi vu và hít hà hương nhựa thông cao nguyên trong trẻo.',
+        category: 'THƯ THÁI PHỐ NÚI',
+        status: 'LÃNG MẠN',
+        statusType: 'info',
+        icon: '🌲',
+        theme: 'emerald',
+        timeHint: '06h30 – 09h00 / 16h30',
+        locationHint: 'Đường mòn đồi thông',
+        image: 'https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&w=700&q=80',
       });
     } else {
       suggestions.push({
-        title: 'Săn Mây Cao Nguyên & Ngắm Toàn Cảnh Rừng Thông',
+        title: 'Săn Mây Cao Nguyên & Ngắm Toàn Cảnh Thung Lũng',
         desc: 'Sáng sớm những dải mây trắng bồng bềnh phủ kín thung lũng đồi núi, mang lại cảm giác bình yên thư thái tuyệt đối.',
         category: 'THIÊN NHIÊN KỲ VỸ',
         status: 'TUYỆT ĐẸP',
@@ -764,9 +749,53 @@ function getEnrichedSuggestions(weatherData, place) {
   }
 
   // ==========================================
-  // 2. NGHỆ THUẬT, WORKSHOP & GIẢI TRÍ TRONG NHÀ
+  // 2. ẨM THỰC & THƯỞNG THỨC ĐẶC SẢN (Slot 2)
   // ==========================================
-  if (seed % 3 === 0) {
+  if (isCoastal) {
+    suggestions.push({
+      title: 'Thưởng Thức Hải Sản Nướng & Lẩu Nóng Ven Vịnh',
+      desc: `Đặc sản biển tươi ngon với mực nướng sa tế, ghẹ hấp sả và nồi lẩu hải sản chua cay thơm nức tại ${place?.name || 'vùng biển'}.`,
+      category: 'ẨM THỰC ĐẶC SẢN BIỂN',
+      status: 'TUYỆT HẢO',
+      statusType: 'success',
+      icon: '🦀',
+      theme: 'amber',
+      timeHint: '17h00 – 21h00',
+      locationHint: 'Làng chài / Quán ven biển',
+      image: 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=700&q=80',
+    });
+  } else if (isHighland || isCold || isRainy) {
+    suggestions.push({
+      title: 'Thưởng Thức Lẩu Nóng & BBQ Than Hồng Ấm Cúng',
+      desc: 'Quây quần bên bếp than hồng xì xèo cùng nồi lẩu nghi ngút khói, xua tan cái lạnh và sưởi ấm vị giác hoàn hảo.',
+      category: 'ẨM THỰC ĐẶC SẢN NÚI',
+      status: 'HOÀN HẢO',
+      statusType: 'success',
+      icon: '🍲',
+      theme: 'amber',
+      timeHint: '17h30 – 21h30',
+      locationHint: 'Quán nướng sân vườn / Quán lẩu',
+      image: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=700&q=80',
+    });
+  } else {
+    suggestions.push({
+      title: 'Khám Phá Phố Ẩm Thực Đêm & Chợ Đêm Địa Phương',
+      desc: 'Hòa mình vào không khí nhộn nhịp về đêm, nếm thử đủ món ăn vặt đặc sắc đường phố và mua sắm lưu niệm thú vị.',
+      category: 'ẨM THỰC ĐƯỜNG PHỐ',
+      status: 'NHỘN NHỊP',
+      statusType: 'amber',
+      icon: '🍢',
+      theme: 'amber',
+      timeHint: '18h30 – 22h00',
+      locationHint: 'Chợ đêm / Tuyến phố đi bộ',
+      image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=700&q=80',
+    });
+  }
+
+  // ==========================================
+  // 3. NGHỆ THUẬT & WORKSHOP SÁNG TẠO (Slot 3)
+  // ==========================================
+  if (seed % 2 === 0) {
     suggestions.push({
       title: 'Tham Gia Workshop Làm Gốm & Vẽ Tranh Sáng Tạo',
       desc: 'Tự tay nhào nặn chiếc tách gốm mộc mạc hoặc hoàn thành bức tranh canvas rực rỡ dưới nền nhạc acoustic êm ái.',
@@ -779,10 +808,28 @@ function getEnrichedSuggestions(weatherData, place) {
       locationHint: 'Studio thủ công / Workshop',
       image: 'https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?auto=format&fit=crop&w=700&q=80',
     });
-  } else if (seed % 3 === 1) {
+  } else {
+    suggestions.push({
+      title: 'Tham Quan Triển Lãm Nghệ Thuật & Không Gian Di Sản',
+      desc: 'Chiêm ngưỡng những tác phẩm mỹ thuật đương đại, cổ vật văn hóa và cảm nhận chiều sâu lịch sử trong không gian tĩnh lặng.',
+      category: 'VĂN HÓA & NGHỆ THUẬT',
+      status: 'RẤT ĐÁNG XEM',
+      statusType: 'info',
+      icon: '🏛️',
+      theme: 'purple',
+      timeHint: '09h00 – 16h30',
+      locationHint: 'Nhà trưng bày / Bảo tàng nghệ thuật',
+      image: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=700&q=80',
+    });
+  }
+
+  // ==========================================
+  // 4. GIẢI TRÍ, GIAO LƯU & GẮN KẾT BẠN BÈ (Slot 4)
+  // ==========================================
+  if (seed % 3 === 0) {
     suggestions.push({
       title: 'Xem Phim Bom Tấn Rạp Chiếu Công Nghệ Mới',
-      desc: 'Thưởng thức những thước phim điện ảnh đỉnh cao với âm thanh vòm sống động và màn chiếu siêu nét, tránh nóng hoặc mưa hoàn hảo.',
+      desc: 'Thưởng thức những thước phim điện ảnh đỉnh cao với âm thanh vòm sống động và màn chiếu siêu nét, giải trí thư giãn hoàn hảo.',
       category: 'GIẢI TRÍ ĐỈNH CAO',
       status: 'HẤP DẪN',
       statusType: 'info',
@@ -792,7 +839,7 @@ function getEnrichedSuggestions(weatherData, place) {
       locationHint: 'Rạp chiếu phim / TTTM',
       image: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=700&q=80',
     });
-  } else {
+  } else if (seed % 3 === 1) {
     suggestions.push({
       title: 'Giao Lưu Boardgame Thú Vị Cùng Nhóm Bạn',
       desc: 'Thử tài tư duy với Ma Sói, Catan, Splendor hay Uno trong không gian thân thiện, tạo nên những tràng cười sảng khoái.',
@@ -805,10 +852,23 @@ function getEnrichedSuggestions(weatherData, place) {
       locationHint: 'Quán Boardgame cafe',
       image: 'https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?auto=format&fit=crop&w=700&q=80',
     });
+  } else {
+    suggestions.push({
+      title: 'Thưởng Thức Cafe Nhạc Acoustic Sống Động',
+      desc: 'Lắng nghe những giai điệu guitar mộc và giọng hát truyền cảm, tận hưởng một buổi tối cuối ngày sâu lắng và giàu cảm xúc.',
+      category: 'ÂM NHẠC & THƯ GIÃN',
+      status: 'CỰC CHILL',
+      statusType: 'info',
+      icon: '🎸',
+      theme: 'purple',
+      timeHint: '19h30 – 22h00',
+      locationHint: 'Phòng trà / Quán cafe acoustic',
+      image: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=700&q=80',
+    });
   }
 
   // ==========================================
-  // 3. THỂ THAO, SỨC KHỎE & HỒI PHỤC NĂNG LƯỢNG
+  // 5. THỂ THAO, RÈN LUYỆN & HỒI PHỤC NĂNG LƯỢNG (Slot 5)
   // ==========================================
   if (isRainy || badAir || isThunder) {
     if (seed % 2 === 0) {
@@ -869,10 +929,23 @@ function getEnrichedSuggestions(weatherData, place) {
   }
 
   // ==========================================
-  // 4. ẨM THỰC ĐƯỜNG PHỐ & GẮN KẾT GIA ĐÌNH
+  // 6. LỐI SỐNG, GIA ĐÌNH & AN TOÀN THỜI TIẾT (Slot 6)
   // ==========================================
-  if (isRainy || isCold) {
+  if (isRainy) {
     if (seed % 2 === 0) {
+      suggestions.push({
+        title: 'Trang Bị Áo Mưa & Giữ Khoảng Cách Lái Xe An Toàn',
+        desc: 'Mặt đường ướt giảm độ bám của lốp xe. Nhớ chuẩn bị áo mưa gọn gàng, bật đèn sương mù và duy trì tốc độ an toàn.',
+        category: 'AN TOÀN GIAO THÔNG',
+        status: 'CẦN LƯU Ý',
+        statusType: 'warning',
+        icon: '☔',
+        theme: 'amber',
+        timeHint: 'Khi ra ngoài đường',
+        locationHint: 'Tuyến đường giao thông',
+        image: 'https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?auto=format&fit=crop&w=700&q=80',
+      });
+    } else {
       suggestions.push({
         title: 'Tự Nấu Ăn Tại Nhà & Gắn Kết Bữa Cơm Gia Đình',
         desc: 'Trời mưa gió là cơ hội tuyệt vời để cả nhà vào bếp trổ tài những món ăn ngon miệng, quây quần bên mâm cơm ấm áp.',
@@ -885,51 +958,7 @@ function getEnrichedSuggestions(weatherData, place) {
         locationHint: 'Gian bếp gia đình',
         image: 'https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&w=700&q=80',
       });
-    } else {
-      suggestions.push({
-        title: 'Khám Phá Phố Ẩm Thực Đêm & Món Nóng Địa Phương',
-        desc: 'Tản bộ qua những hàng quán nghi ngút khói thơm, thưởng thức bát phở nóng, ốc luộc hay bánh căn giòn rụm.',
-        category: 'ẨM THỰC ĐƯỜNG PHỐ',
-        status: 'HẤP DẪN',
-        statusType: 'amber',
-        icon: '🍢',
-        theme: 'amber',
-        timeHint: '18h30 – 22h00',
-        locationHint: 'Khu ẩm thực đêm / Chợ phiên',
-        image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=700&q=80',
-      });
     }
-  } else {
-    suggestions.push({
-      title: 'Khám Phá Phố Ẩm Thực Đêm & Chợ Đêm Địa Phương',
-      desc: 'Hòa mình vào không khí nhộn nhịp về đêm, nếm thử đủ món ăn vặt đặc sắc đường phố và mua sắm lưu niệm thú vị.',
-      category: 'ẨM THỰC ĐƯỜNG PHỐ',
-      status: 'NHỘN NHỊP',
-      statusType: 'amber',
-      icon: '🍢',
-      theme: 'amber',
-      timeHint: '18h30 – 22h00',
-      locationHint: 'Chợ đêm / Tuyến phố đi bộ',
-      image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=700&q=80',
-    });
-  }
-
-  // ==========================================
-  // 5. LỐI SỐNG, BẢO VỆ SỨC KHỎE & AN TOÀN
-  // ==========================================
-  if (isRainy) {
-    suggestions.push({
-      title: 'Trang Bị Áo Mưa & Giữ Khoảng Cách Lái Xe An Toàn',
-      desc: 'Mặt đường ướt giảm độ bám của lốp xe. Nhớ chuẩn bị áo mưa gọn gàng, bật đèn sương mù và duy trì tốc độ an toàn.',
-      category: 'AN TOÀN GIAO THÔNG',
-      status: 'CẦN LƯU Ý',
-      statusType: 'warning',
-      icon: '☔',
-      theme: 'amber',
-      timeHint: 'Khi ra ngoài đường',
-      locationHint: 'Tuyến đường giao thông',
-      image: 'https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?auto=format&fit=crop&w=700&q=80',
-    });
   } else if (highUV || isHot) {
     suggestions.push({
       title: 'Thoa Kem Chống Nắng SPF 50+ & Đeo Kính Râm Bảo Vệ Mắt',
@@ -971,7 +1000,24 @@ function getEnrichedSuggestions(weatherData, place) {
     });
   }
 
-  return suggestions;
+  // Đảm bảo luôn đủ đúng 6 hoạt động tròn trịa
+  if (suggestions.length < 6) {
+    const backupCard = {
+      title: 'Tự Nấu Ăn Tại Nhà & Gắn Kết Bữa Cơm Gia Đình',
+      desc: 'Vào bếp trổ tài những món ăn ngon miệng, quây quần bên người thân trong bữa cơm ấm áp tràn ngập niềm vui.',
+      category: 'ẤM CÚNG GIA ĐÌNH',
+      status: 'Ý NGHĨA',
+      statusType: 'success',
+      icon: '🍳',
+      theme: 'amber',
+      timeHint: '11h30 / 18h30',
+      locationHint: 'Gian bếp gia đình',
+      image: 'https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&w=700&q=80',
+    };
+    suggestions.push(backupCard);
+  }
+
+  return suggestions.slice(0, 6);
 }
 
 export default function App() {

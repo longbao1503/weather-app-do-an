@@ -33,48 +33,61 @@ const WMO = (c) => c === 0 ? 'Trời quang' : c <= 3 ? 'Có mây' : c <= 48 ? 'S
   : c <= 67 ? 'Mưa' : c <= 77 ? 'Tuyết' : c <= 82 ? 'Mưa rào' : c <= 86 ? 'Tuyết rơi' : 'Dông';
 const r1 = (n) => Math.round(n * 10) / 10;
 
-/* ---------- Hệ thống gợi ý hoạt động phong phú (đa dạng danh mục) ---------- */
+/* ---------- Hệ thống gợi ý hoạt động phong phú (đúng 6 mục đối xứng) ---------- */
 function suggest(c, today) {
   const rainy = (c.id >= 300 && c.id < 600) || (today?.rain || 0) >= 3;
   const isThunder = c.id >= 200 && c.id < 300;
   const isHot = c.temp >= 34;
   const isCold = c.temp < 19;
-  const isPleasant = !rainy && !isThunder && !isHot && !isCold;
 
   const out = [];
 
-  // 1. Trải nghiệm & Ẩm thực
   if (isThunder) {
-    out.push('Ở trong nhà kiên cố, tránh xa cây cao và khu vực trũng ngập');
+    out.push('Ở trong nhà kiên cố, tránh xa cửa sổ và khu vực trũng ngập');
     out.push('Tạm hoãn hoạt động đi biển, leo núi hoặc chèo thuyền');
-  } else if (rainy) {
+    out.push('Xem phim hoặc thưởng thức chương trình giải trí trong nhà');
+    out.push('Giao lưu boardgame hoặc trò chuyện ấm cúng cùng người thân');
+    out.push('Đọc sách thư giãn và nghỉ ngơi phục hồi năng lượng');
+    out.push('Kiểm tra an toàn các thiết bị điện và cửa sổ trong nhà');
+    return out;
+  }
+  
+  if (rainy) {
     out.push('Thưởng thức lẩu nóng hoặc món nướng đặc sản ấm cúng');
-    out.push('Tham quan workshop làm gốm, vẽ tranh hoặc rạp chiếu phim');
+    out.push('Tham quan workshop làm gốm, vẽ tranh sáng tạo');
+    out.push('Xem phim bom tấn rạp chiếu phim công nghệ mới');
     out.push('Thư giãn massage đá nóng hoặc xông hơi thảo mộc');
     out.push('Tự nấu ăn tại nhà sum vầy cùng gia đình');
     out.push('Trang bị áo mưa chuẩn chống thấm và giữ khoảng cách lái xe an toàn');
     return out;
-  } else if (isHot) {
+  }
+  
+  if (isHot) {
     out.push('Bơi lội giải nhiệt hoặc tắm biển sáng sớm và sau 16h30');
     out.push('Thưởng thức trà trái cây nhiệt đới giải nhiệt cơ thể');
+    out.push('Xem phim rạp hoặc tham quan triển lãm nghệ thuật mát mẻ');
     out.push('Tập gym, yoga hoặc thể thao trong phòng tập máy lạnh');
     out.push('Khám phá chợ đêm ẩm thực khi trời dịu mát về tối');
     out.push('Tránh ra nắng gắt từ 11h-15h, thoa kem chống nắng SPF 50+');
     return out;
-  } else if (isCold) {
+  }
+  
+  if (isCold) {
     out.push('Thưởng thức tô phở nóng hổi hoặc nồi lẩu nghi ngút khói');
     out.push('Tản bộ ngắm cảnh se lạnh và uống trà gừng mật ong');
     out.push('Workshop nghệ thuật thủ công hoặc rạp chiếu phim ấm cúng');
-    out.push('Giao lưu boardgame hoặc đọc sách thư giãn');
+    out.push('Giao lưu boardgame hoặc cafe acoustic thư giãn');
+    out.push('Tập yoga kéo giãn cơ hoặc rèn luyện thể lực trong nhà');
     out.push('Mặc áo khoác giữ ấm ngực cổ và đội mũ len khi ra gió');
     return out;
   }
 
   // Tiết trời đẹp / râm mát / thoáng đãng
   out.push('Chèo SUP, lặn biển hoặc khám phá thiên nhiên');
+  out.push('Thưởng thức ẩm thực đường phố và trà chiều thư thái');
+  out.push('Tham gia workshop nghệ thuật hoặc dạo bảo tàng di sản');
   out.push('Chạy bộ, đạp xe rèn luyện sức bền ven công viên hoặc ven biển');
   out.push('Cắm trại dã ngoại và tiệc nướng BBQ ngoài trời');
-  out.push('Khám phá phố ẩm thực đêm và giao lưu bạn bè');
   out.push('Tận hưởng không khí trong lành, thoa kem chống nắng bảo vệ da');
   return out;
 }
