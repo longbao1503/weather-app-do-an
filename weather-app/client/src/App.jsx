@@ -1047,16 +1047,6 @@ export default function App() {
 
       {/* ===== MODERN HEADER NAVBAR VỚI CÁC TAB CHUYỂN TRANG ===== */}
       <header className={`app-navbar ${isScrolled ? 'is-scrolled' : ''}`}>
-        <div className="navbar-brand-wrap" onClick={() => goToPage('overview')} title="Quay về trang Tổng quan">
-          <div className="navbar-logo-icon">⛅</div>
-          <div className="navbar-brand-info">
-            <div className="navbar-brand-title">
-              SkyCast VN <span className="tag">Realtime</span>
-            </div>
-            <span className="navbar-brand-tagline">Dự Báo Khí Tượng & Radar Vệ Tinh</span>
-          </div>
-        </div>
-
         {/* Thanh chuyển các Trang / Tabs */}
         <nav className="navbar-tabs-nav" aria-label="Điều hướng chính">
           <button
