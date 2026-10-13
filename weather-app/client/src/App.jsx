@@ -602,6 +602,15 @@ export default function App() {
   const [soundActive, setSoundActive] = useState(false);
   const [showAppModal, setShowAppModal] = useState(false);
   const [activePage, setActivePage] = useState('overview'); // 'overview' | 'forecast' | 'map' | 'air' | 'mobile'
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 15);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const goToPage = (pageId) => {
     setActivePage(pageId);
@@ -1037,7 +1046,7 @@ export default function App() {
       )}
 
       {/* ===== MODERN HEADER NAVBAR VỚI CÁC TAB CHUYỂN TRANG ===== */}
-      <header className="app-navbar">
+      <header className={`app-navbar ${isScrolled ? 'is-scrolled' : ''}`}>
         <div className="navbar-brand-wrap" onClick={() => goToPage('overview')} title="Quay về trang Tổng quan">
           <div className="navbar-logo-icon">⛅</div>
           <div className="navbar-brand-info">

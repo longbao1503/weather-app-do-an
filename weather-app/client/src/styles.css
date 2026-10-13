@@ -144,6 +144,10 @@
   padding: 0;
 }
 
+html {
+  overflow-x: clip;
+}
+
 body {
   min-height: 100vh;
   background: var(--bg-gradient);
@@ -153,7 +157,7 @@ body {
   -webkit-font-smoothing: antialiased;
   transition: background 0.4s ease, color 0.4s ease;
   position: relative;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 /* Ambient glow */
@@ -190,20 +194,46 @@ main {
 
 /* ===== MODERN APP NAVBAR & NAVIGATION TABS ===== */
 .app-navbar {
+  position: sticky;
+  top: 10px;
+  z-index: 1200;
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 14px;
   background: var(--card-bg);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   border: 1px solid var(--glass-border);
-  padding: 12px 20px;
+  padding: 10px 18px;
   border-radius: 18px;
   margin-bottom: 18px;
-  box-shadow: var(--card-shadow);
-  transition: all 0.3s ease;
+  box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.1), 0 2px 6px rgba(15, 23, 42, 0.04);
+  transition: padding 0.25s ease, box-shadow 0.25s ease, background 0.25s ease, top 0.25s ease, border-color 0.25s ease;
+}
+
+.app-navbar.is-scrolled {
+  top: 8px;
+  box-shadow: 0 14px 36px -6px rgba(15, 23, 42, 0.18), 0 4px 12px rgba(15, 23, 42, 0.08);
+  border-color: rgba(56, 189, 248, 0.45);
+}
+
+[data-theme="coastal-day"] .app-navbar,
+[data-theme="sky-bright"] .app-navbar {
+  background: rgba(255, 255, 255, 0.92);
+}
+[data-theme="coastal-day"] .app-navbar.is-scrolled,
+[data-theme="sky-bright"] .app-navbar.is-scrolled {
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 12px 32px -6px rgba(2, 132, 199, 0.16), 0 4px 12px rgba(15, 23, 42, 0.06);
+}
+
+[data-theme="slate"] .app-navbar.is-scrolled,
+[data-theme="dusk"] .app-navbar.is-scrolled,
+[data-theme="deep-pine"] .app-navbar.is-scrolled {
+  background: rgba(15, 23, 42, 0.92);
+  box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.45);
 }
 
 .navbar-brand-wrap {
@@ -2261,10 +2291,31 @@ tbody tr:hover td {
   .pollutant-grid { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 680px) {
-  .app-navbar { flex-direction: column; align-items: stretch; gap: 12px; }
-  .navbar-brand-wrap { justify-content: center; }
-  .navbar-tabs-nav { width: 100%; justify-content: flex-start; }
-  .navbar-actions { justify-content: space-between; width: 100%; }
+  .app-navbar {
+    top: 6px;
+    padding: 8px 12px;
+    border-radius: 16px;
+    gap: 8px;
+  }
+  .navbar-brand-wrap {
+    order: 1;
+    justify-content: flex-start;
+  }
+  .navbar-actions {
+    order: 2;
+    margin-left: auto;
+    width: auto;
+    justify-content: flex-end;
+  }
+  .navbar-tabs-nav {
+    order: 3;
+    width: 100%;
+    justify-content: flex-start;
+    padding: 4px;
+    border-radius: 30px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
   .cta-hub-grid { grid-template-columns: 1fr; }
   .theme-bar-container { flex-direction: column; align-items: stretch; }
   .theme-group { justify-content: center; }
