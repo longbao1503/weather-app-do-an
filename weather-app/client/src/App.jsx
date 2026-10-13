@@ -18,6 +18,57 @@ const QUICK_LOCATIONS = [
   { name: 'Đà Nẵng', lat: 16.0544, lon: 108.2022 },
 ];
 
+/* Dữ liệu demo dự phòng (Nha Trang) cho trải nghiệm tức thì khi máy chủ Render cold-start */
+const DEMO_NHA_TRANG_DATA = {
+  current: {
+    id: 801,
+    desc: 'Có mây, nắng dịu ven biển',
+    icon: '02d',
+    temp: 29.5,
+    feels: 32,
+    humidity: 78,
+    wind: 16,
+    windDir: 'Đông Nam',
+    pressure: 1011,
+    visibility: 10,
+    clouds: 25,
+    uv: 6.5,
+    name: 'Nha Trang',
+    country: 'VN',
+  },
+  daily: [
+    { date: new Date().toISOString().slice(0, 10), text: 'Nắng nhẹ ven biển', max: 31, min: 25, rain: 0.5, wind: 15, uv: 6.8 },
+    { date: new Date(Date.now() + 86400000).toISOString().slice(0, 10), text: 'Trời nắng đẹp', max: 32, min: 26, rain: 0, wind: 14, uv: 7.2 },
+    { date: new Date(Date.now() + 172800000).toISOString().slice(0, 10), text: 'Mây rải rác', max: 31, min: 25, rain: 1.2, wind: 16, uv: 6.0 },
+    { date: new Date(Date.now() + 259200000).toISOString().slice(0, 10), text: 'Chiều tối mưa rào', max: 30, min: 24, rain: 4.5, wind: 18, uv: 5.5 },
+    { date: new Date(Date.now() + 345600000).toISOString().slice(0, 10), text: 'Nắng ráo thoáng đãng', max: 32, min: 25, rain: 0, wind: 13, uv: 7.0 },
+    { date: new Date(Date.now() + 432000000).toISOString().slice(0, 10), text: 'Trời mát mẻ', max: 30, min: 24, rain: 2.0, wind: 15, uv: 5.8 },
+    { date: new Date(Date.now() + 518400000).toISOString().slice(0, 10), text: 'Nắng vàng biển xanh', max: 31, min: 25, rain: 0, wind: 14, uv: 6.5 },
+  ],
+  hourly: Array.from({ length: 16 }).map((_, i) => ({
+    t: Math.floor(Date.now() / 1000) + i * 3600,
+    temp: 28 + Math.round(Math.sin(i / 3) * 3),
+    pop: i % 4 === 0 ? 25 : 10,
+    icon: '02d',
+    desc: 'Có mây rải rác',
+    wind: 14 + (i % 3) * 2,
+  })),
+  airQuality: {
+    aqi: 38,
+    pm25: 9.2,
+    pm10: 18.5,
+  },
+  alerts: [],
+  suggest: [
+    'Chèo SUP, lặn biển ngắm san hô hoặc dạo bờ biển Trần Phú',
+    'Thưởng thức nem nướng Nha Trang và hải sản tươi sống',
+    'Tham quan Tháp Bà Ponagar hoặc Viện Hải dương học',
+    'Dạo mát quảng trường 2/4 và ngắm hoàng hôn vịnh biển',
+    'Thưởng thức cafe view biển lộng gió buổi sáng',
+    'Tận hưởng không khí trong lành, thoa kem chống nắng bảo vệ da',
+  ],
+};
+
 const fmtDay = (d) => new Date(d).toLocaleDateString('vi-VN', { weekday: 'short', day: '2-digit', month: '2-digit' });
 const fmtHour = (t) => new Date(t * 1000).toLocaleString('vi-VN', { weekday: 'short', hour: '2-digit' });
 const fmtTimeOnly = (t) => t ? new Date(t * 1000).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : '--:--';
@@ -1242,8 +1293,24 @@ function getEnrichedSuggestions(weatherData, place) {
 }
 
 export default function App() {
-  const [place, setPlace] = useState(null);
-  const [data, setData] = useState(null);
+  const [place, setPlace] = useState(() => {
+    try {
+      const cached = localStorage.getItem('wx_cache_place');
+      return cached ? JSON.parse(cached) : DEFAULT;
+    } catch {
+      return DEFAULT;
+    }
+  });
+  const [data, setData] = useState(() => {
+    try {
+      const cached = localStorage.getItem('wx_cache_data');
+      return cached ? JSON.parse(cached) : null;
+    } catch {
+      return null;
+    }
+  });
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [coldStartSecs, setColdStartSecs] = useState(0);
   const [err, setErr] = useState('');
   const [q, setQ] = useState('');
   const [results, setResults] = useState([]);
@@ -1358,13 +1425,23 @@ export default function App() {
     };
   }, []);
 
-  // Geolocation
+  // Geolocation ngầm không gây block hay delay giao diện
   const getCurrentLocation = () => {
-    if (!navigator.geolocation) return setPlace(DEFAULT);
+    if (!navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(
-      (p) => setPlace({ name: 'Vị trí hiện tại của bạn', lat: p.coords.latitude, lon: p.coords.longitude }),
-      () => setPlace(DEFAULT),
-      { timeout: 8000 }
+      (p) => {
+        const newLat = p.coords.latitude;
+        const newLon = p.coords.longitude;
+        // Chỉ đổi toạ độ nếu lệch đáng kể (> 0.05 độ, khoảng 5-6km)
+        setPlace((prev) => {
+          if (!prev || Math.abs(prev.lat - newLat) > 0.05 || Math.abs(prev.lon - newLon) > 0.05) {
+            return { name: 'Vị trí hiện tại của bạn', lat: newLat, lon: newLon };
+          }
+          return prev;
+        });
+      },
+      () => {},
+      { timeout: 7000 }
     );
   };
 
@@ -1372,19 +1449,56 @@ export default function App() {
     getCurrentLocation();
   }, []);
 
-  // Fetch weather data
+  // Fetch weather data với Stale-While-Revalidate & phát hiện Cold-Start server
   useEffect(() => {
     if (!place) return;
     let off = false;
+    setIsSyncing(true);
     const API_BASE = import.meta.env.VITE_API_URL ?? '';
-    const load = () => fetch(`${API_BASE}/api/weather?lat=${place.lat}&lon=${place.lon}`)
-      .then((r) => r.json().then((j) => (r.ok ? j : Promise.reject(new Error(j.error)))))
-      .then((j) => !off && (setData(j), setErr('')))
-      .catch((e) => !off && setErr(e.message));
-    setData(null);
+
+    // Nếu chưa có data (lần đầu vào web), bắt đầu đếm giây cold-start
+    let timer = null;
+    if (!data) {
+      setColdStartSecs(0);
+      timer = setInterval(() => {
+        setColdStartSecs((s) => s + 1);
+      }, 1000);
+    }
+
+    const load = () =>
+      fetch(`${API_BASE}/api/weather?lat=${place.lat}&lon=${place.lon}`)
+        .then((r) => r.json().then((j) => (r.ok ? j : Promise.reject(new Error(j.error || 'Lỗi nạp dữ liệu')))))
+        .then((j) => {
+          if (!off) {
+            setData(j);
+            setErr('');
+            setIsSyncing(false);
+            setColdStartSecs(0);
+            if (timer) clearInterval(timer);
+            try {
+              localStorage.setItem('wx_cache_data', JSON.stringify(j));
+              localStorage.setItem('wx_cache_place', JSON.stringify(place));
+            } catch (e) {
+              console.warn('Cache error:', e);
+            }
+          }
+        })
+        .catch((e) => {
+          if (!off) {
+            setIsSyncing(false);
+            if (!data) {
+              setErr(e.message);
+            }
+          }
+        });
+
     load();
     const id = setInterval(load, 600000);
-    return () => { off = true; clearInterval(id); };
+    return () => {
+      off = true;
+      if (timer) clearInterval(timer);
+      clearInterval(id);
+    };
   }, [place]);
 
   const search = async (e) => {
@@ -1752,12 +1866,20 @@ export default function App() {
 
         {/* Công cụ nhanh */}
         <div className="navbar-actions">
+          {isSyncing && data && (
+            <div className="sync-badge" title="Đang đồng bộ dữ liệu thời tiết mới nhất...">
+              <span className="sync-dot" />
+              <span className="sync-text">Cập nhật</span>
+            </div>
+          )}
+
           <button
-            className={`tool-btn ${soundActive ? 'active' : ''}`}
+            className={`tool-btn sound-tool-btn ${soundActive ? 'active' : ''}`}
             onClick={toggleSoundscape}
             title="Bật/Tắt âm thanh mưa rơi thư giãn"
           >
-            {soundActive ? '🌧️ Đang phát mưa' : '🎵 Âm thanh mưa'}
+            <span className="tool-icon">{soundActive ? '🌧️' : '🎵'}</span>
+            <span className="tool-text">{soundActive ? 'Đang phát mưa' : 'Âm thanh mưa'}</span>
           </button>
 
           <div className="unit-toggle-wrap">
@@ -1776,8 +1898,9 @@ export default function App() {
           </div>
 
           {data && (
-            <button className="tool-btn" onClick={copyWeatherSummary} title="Sao chép tóm tắt thời tiết">
-              📋 Chia sẻ
+            <button className="tool-btn share-tool-btn" onClick={copyWeatherSummary} title="Sao chép tóm tắt thời tiết">
+              <span className="tool-icon">📋</span>
+              <span className="tool-text">Chia sẻ</span>
             </button>
           )}
         </div>
@@ -1891,11 +2014,57 @@ export default function App() {
       {/* Báo lỗi nếu có */}
       {err && <div className="alert-row danger" role="alert">⚠️ Không tải được dữ liệu: {err}</div>}
 
-      {/* Trạng thái Loading */}
+      {/* Trạng thái Loading / Khởi tạo với Skeleton UI & Cold Start Helper */}
       {!data && !err && (
-        <div className="loading-box">
-          <div className="spinner" />
-          <p>Đang tải dữ liệu thời tiết thời gian thực…</p>
+        <div className="initial-loading-container">
+          <div className="loading-box">
+            <div className="spinner" />
+            <p className="loading-main-text">Đang tải dữ liệu thời tiết thời gian thực…</p>
+
+            {/* Khi chờ trên 3 giây (máy chủ Render đang thức giấc từ chế độ ngủ) */}
+            {coldStartSecs >= 3 && (
+              <div className="cold-start-banner animated fadeIn">
+                <div className="cold-start-header">
+                  <span className="cold-start-icon">⏳</span>
+                  <div>
+                    <strong>Máy chủ đám mây đang khởi động sau thời gian nghỉ</strong>
+                    <p className="cold-start-sub">
+                      Dịch vụ máy chủ miễn phí (Render) cần khoảng 20–45 giây để thức dậy lần đầu. Đang xử lý: {coldStartSecs}s...
+                    </p>
+                  </div>
+                </div>
+                <div className="cold-start-progress-wrap">
+                  <div
+                    className="cold-start-progress-bar"
+                    style={{ width: `${Math.min(15 + coldStartSecs * 2.5, 95)}%` }}
+                  />
+                </div>
+                <div className="cold-start-actions">
+                  <button
+                    className="demo-data-btn"
+                    onClick={() => {
+                      setData(DEMO_NHA_TRANG_DATA);
+                      showToast('✨ Đã mở giao diện trải nghiệm với dữ liệu mẫu Nha Trang!');
+                    }}
+                    title="Xem ngay toàn bộ giao diện mà không cần chờ máy chủ"
+                  >
+                    ⚡ Trải nghiệm ngay dữ liệu mẫu (Nha Trang)
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Skeleton UI mờ phía dưới mô phỏng cấu trúc giao diện */}
+          <div className="skeleton-dashboard-preview" aria-hidden="true">
+            <div className="skeleton-hero shimmer" />
+            <div className="skeleton-grid">
+              <div className="skeleton-card shimmer" />
+              <div className="skeleton-card shimmer" />
+              <div className="skeleton-card shimmer" />
+              <div className="skeleton-card shimmer" />
+            </div>
+          </div>
         </div>
       )}
 

@@ -210,6 +210,10 @@ async function fetchAll(lat, lon) {
 const app = express();
 app.use(cors(), express.json());
 
+/* Endpoint Health-Check & Ping Keep-Alive cho UptimeRobot / Cron-Job */
+app.get('/', (req, res) => res.json({ status: 'ok', service: 'weather-api', time: new Date().toISOString() }));
+app.get('/api/health', (req, res) => res.json({ status: 'ok', time: new Date().toISOString() }));
+
 app.get('/api/weather', async (req, res) => {
   const t0 = Date.now();
   const lat = +req.query.lat, lon = +req.query.lon;
