@@ -1382,81 +1382,210 @@ export default function App() {
               {/* ===== TRUNG TÂM NÚT CTA ĐIỀU HƯỚNG TỔNG QUAN ===== */}
               <section className="cta-hub-section">
                 <div className="cta-hub-intro">
-                  <h2>⚡ Khám Phá Tính Năng Chuyên Sâu</h2>
-                  <span style={{ fontSize: '0.84rem', color: 'var(--text-muted)' }}>Chuyển nhanh sang các chuyên mục</span>
+                  <div className="cta-hub-title-group">
+                    <h2>⚡ Khám Phá Tính Năng Chuyên Sâu</h2>
+                    <span className="cta-hub-badge">4 Tiện Ích Đỉnh Cao</span>
+                  </div>
+                  <span className="cta-hub-hint">Nhấp vào thẻ hoặc nút để chuyển nhanh sang chuyên mục</span>
                 </div>
 
                 <div className="cta-hub-grid">
                   {/* Card 1: Dự báo & Biểu đồ */}
-                  <div className="cta-action-card">
-                    <div>
-                      <div className="cta-card-top">
+                  <div 
+                    className="cta-action-card theme-blue" 
+                    onClick={() => goToPage('forecast')}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); goToPage('forecast'); } }}
+                    role="button"
+                    tabIndex={0}
+                    aria-label="Xem dự báo và biểu đồ khí tượng 48 giờ và 14 ngày"
+                  >
+                    <div className="cta-card-banner">
+                      <img 
+                        src="https://images.unsplash.com/photo-1592210454359-9043f067919b?auto=format&fit=crop&w=800&q=80" 
+                        alt="Dự Báo & Biểu Đồ Khí Tượng"
+                        className="cta-card-img" 
+                        loading="lazy"
+                        onError={(e) => { e.currentTarget.style.opacity = '0'; }}
+                      />
+                      <div className="cta-card-banner-overlay" />
+                      <div className="cta-card-banner-top">
                         <div className="cta-card-icon-box">📊</div>
                         <span className="cta-card-badge blue">48H & 14 NGÀY</span>
                       </div>
-                      <h3 className="cta-card-title">Dự Báo & Biểu Đồ Khí Tượng</h3>
-                      <p className="cta-card-desc">
-                        Phân tích diễn biến thời tiết 48 giờ tới, biểu đồ xu hướng biên độ nhiệt và lượng mưa 14 ngày, so sánh đối chiếu hai mô hình OpenWeather & Open-Meteo.
-                      </p>
+                      <div className="cta-card-banner-bottom">
+                        <span className="cta-card-category">MÔ HÌNH DỰ BÁO KÉP</span>
+                      </div>
                     </div>
-                    <button className="cta-button primary" onClick={() => goToPage('forecast')}>
-                      <span>Xem Biểu Đồ & 14 Ngày</span>
-                      <span>→</span>
-                    </button>
+
+                    <div className="cta-card-body">
+                      <div>
+                        <h3 className="cta-card-title">Dự Báo & Biểu Đồ Khí Tượng</h3>
+                        <p className="cta-card-desc">
+                          Phân tích diễn biến thời tiết 48 giờ tới, biểu đồ xu hướng biên độ nhiệt và lượng mưa 14 ngày, so sánh đối chiếu hai mô hình OpenWeather & Open-Meteo.
+                        </p>
+                        <div className="cta-card-chips">
+                          <span className="cta-chip">⏱️ 48H chi tiết</span>
+                          <span className="cta-chip">📈 Xu hướng 14 ngày</span>
+                          <span className="cta-chip">⚖️ So sánh mô hình</span>
+                        </div>
+                      </div>
+                      <button 
+                        className="cta-button primary" 
+                        onClick={(e) => { e.stopPropagation(); goToPage('forecast'); }}
+                      >
+                        <span>Xem Biểu Đồ & 14 Ngày</span>
+                        <span className="cta-btn-arrow">→</span>
+                      </button>
+                    </div>
                   </div>
 
                   {/* Card 2: Bản đồ Vệ tinh & Radar */}
-                  <div className="cta-action-card">
-                    <div>
-                      <div className="cta-card-top">
+                  <div 
+                    className="cta-action-card theme-purple" 
+                    onClick={() => goToPage('map')}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); goToPage('map'); } }}
+                    role="button"
+                    tabIndex={0}
+                    aria-label="Mở bản đồ vệ tinh và radar quét mây mưa trực tiếp"
+                  >
+                    <div className="cta-card-banner">
+                      <img 
+                        src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=800&q=80" 
+                        alt="Bản Đồ Vệ Tinh & Radar Mây Mưa"
+                        className="cta-card-img" 
+                        loading="lazy"
+                        onError={(e) => { e.currentTarget.style.opacity = '0'; }}
+                      />
+                      <div className="cta-card-banner-overlay" />
+                      <div className="cta-card-banner-top">
                         <div className="cta-card-icon-box">🛰️</div>
-                        <span className="cta-card-badge purple">THỜI GIAN THỰC</span>
+                        <span className="cta-card-badge purple">
+                          <span className="cta-live-dot" /> THỜI GIAN THỰC
+                        </span>
                       </div>
-                      <h3 className="cta-card-title">Bản Đồ Vệ Tinh & Radar Mây Mưa</h3>
-                      <p className="cta-card-desc">
-                        Quan sát hình ảnh chụp vệ tinh địa hình ven biển ESRI độ nét cao, lớp phủ mây mưa Radar trực tiếp từ RainViewer và click bất kỳ đâu để tra cứu.
-                      </p>
+                      <div className="cta-card-banner-bottom">
+                        <span className="cta-card-category">RADAR QUÉT MÂY MƯA LIVE</span>
+                      </div>
                     </div>
-                    <button className="cta-button secondary" onClick={() => goToPage('map')}>
-                      <span>Mở Bản Đồ Vệ Tinh & Radar</span>
-                      <span>→</span>
-                    </button>
+
+                    <div className="cta-card-body">
+                      <div>
+                        <h3 className="cta-card-title">Bản Đồ Vệ Tinh & Radar Mây Mưa</h3>
+                        <p className="cta-card-desc">
+                          Quan sát hình ảnh chụp vệ tinh địa hình ven biển ESRI độ nét cao, lớp phủ mây mưa Radar trực tiếp từ RainViewer và click bất kỳ đâu để tra cứu.
+                        </p>
+                        <div className="cta-card-chips">
+                          <span className="cta-chip">🛰️ Vệ tinh ESRI 2K</span>
+                          <span className="cta-chip">📡 Live RainViewer</span>
+                          <span className="cta-chip">🗺️ Bản đồ tương tác</span>
+                        </div>
+                      </div>
+                      <button 
+                        className="cta-button secondary" 
+                        onClick={(e) => { e.stopPropagation(); goToPage('map'); }}
+                      >
+                        <span>Mở Bản Đồ Vệ Tinh & Radar</span>
+                        <span className="cta-btn-arrow">→</span>
+                      </button>
+                    </div>
                   </div>
 
                   {/* Card 3: Không khí & Sức khỏe */}
-                  <div className="cta-action-card">
-                    <div>
-                      <div className="cta-card-top">
+                  <div 
+                    className="cta-action-card theme-emerald" 
+                    onClick={() => goToPage('air')}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); goToPage('air'); } }}
+                    role="button"
+                    tabIndex={0}
+                    aria-label="Xem chỉ số chất lượng không khí AQI và UV"
+                  >
+                    <div className="cta-card-banner">
+                      <img 
+                        src="https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=800&q=80" 
+                        alt="Chất Lượng Không Khí & Khí Tượng"
+                        className="cta-card-img" 
+                        loading="lazy"
+                        onError={(e) => { e.currentTarget.style.opacity = '0'; }}
+                      />
+                      <div className="cta-card-banner-overlay" />
+                      <div className="cta-card-banner-top">
                         <div className="cta-card-icon-box">🍃</div>
                         <span className="cta-card-badge emerald">SỨC KHỎE & UV</span>
                       </div>
-                      <h3 className="cta-card-title">Chất Lượng Không Khí & Khí Tượng</h3>
-                      <p className="cta-card-desc">
-                        Theo dõi chỉ số ô nhiễm không khí AQI, nồng độ bụi mịn PM2.5, chỉ số bức xạ cực tím UV, giờ mặt trời mọc/lặn, hướng gió và áp suất khí quyển.
-                      </p>
+                      <div className="cta-card-banner-bottom">
+                        <span className="cta-card-category">MÔI TRƯỜNG & KHÍ QUYỂN</span>
+                      </div>
                     </div>
-                    <button className="cta-button emerald" onClick={() => goToPage('air')}>
-                      <span>Xem Chỉ Số Không Khí & UV</span>
-                      <span>→</span>
-                    </button>
+
+                    <div className="cta-card-body">
+                      <div>
+                        <h3 className="cta-card-title">Chất Lượng Không Khí & Khí Tượng</h3>
+                        <p className="cta-card-desc">
+                          Theo dõi chỉ số ô nhiễm không khí AQI, nồng độ bụi mịn PM2.5, chỉ số bức xạ cực tím UV, giờ mặt trời mọc/lặn, hướng gió và áp suất khí quyển.
+                        </p>
+                        <div className="cta-card-chips">
+                          <span className="cta-chip">🍃 AQI & Bụi PM2.5</span>
+                          <span className="cta-chip">☀️ Bức xạ cực tím UV</span>
+                          <span className="cta-chip">🧭 Hướng gió & Áp suất</span>
+                        </div>
+                      </div>
+                      <button 
+                        className="cta-button emerald" 
+                        onClick={(e) => { e.stopPropagation(); goToPage('air'); }}
+                      >
+                        <span>Xem Chỉ Số Không Khí & UV</span>
+                        <span className="cta-btn-arrow">→</span>
+                      </button>
+                    </div>
                   </div>
 
                   {/* Card 4: Mobile App */}
-                  <div className="cta-action-card">
-                    <div>
-                      <div className="cta-card-top">
+                  <div 
+                    className="cta-action-card theme-amber" 
+                    onClick={() => goToPage('mobile')}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); goToPage('mobile'); } }}
+                    role="button"
+                    tabIndex={0}
+                    aria-label="Tải file APK ứng dụng di động SkyCast cho Android"
+                  >
+                    <div className="cta-card-banner">
+                      <img 
+                        src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&w=800&q=80" 
+                        alt="Ứng Dụng Di Động SkyCast"
+                        className="cta-card-img" 
+                        loading="lazy"
+                        onError={(e) => { e.currentTarget.style.opacity = '0'; }}
+                      />
+                      <div className="cta-card-banner-overlay" />
+                      <div className="cta-card-banner-top">
                         <div className="cta-card-icon-box">📱</div>
                         <span className="cta-card-badge amber">ANDROID APK MIỄN PHÍ</span>
                       </div>
-                      <h3 className="cta-card-title">Ứng Dụng Di Động SkyCast</h3>
-                      <p className="cta-card-desc">
-                        Cài đặt ứng dụng di động độc lập cho điện thoại Android, tự động định vị GPS, tra cứu radar mượt mà và kho ảnh phong cảnh 2K cho 63 tỉnh thành.
-                      </p>
+                      <div className="cta-card-banner-bottom">
+                        <span className="cta-card-category">BẢN NATIVE STANDALONE</span>
+                      </div>
                     </div>
-                    <button className="cta-button amber" onClick={() => goToPage('mobile')}>
-                      <span>Tải File APK Cho Android</span>
-                      <span>→</span>
-                    </button>
+
+                    <div className="cta-card-body">
+                      <div>
+                        <h3 className="cta-card-title">Ứng Dụng Di Động SkyCast</h3>
+                        <p className="cta-card-desc">
+                          Cài đặt ứng dụng di động độc lập cho điện thoại Android, tự động định vị GPS, tra cứu radar mượt mà và kho ảnh phong cảnh 2K cho 63 tỉnh thành.
+                        </p>
+                        <div className="cta-card-chips">
+                          <span className="cta-chip">📲 File APK cài ngay</span>
+                          <span className="cta-chip">📍 Tự động GPS</span>
+                          <span className="cta-chip">🌄 Ảnh 2K 63 tỉnh</span>
+                        </div>
+                      </div>
+                      <button 
+                        className="cta-button amber" 
+                        onClick={(e) => { e.stopPropagation(); goToPage('mobile'); }}
+                      >
+                        <span>Tải File APK Cho Android</span>
+                        <span className="cta-btn-arrow">→</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               </section>

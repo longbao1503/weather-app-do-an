@@ -586,42 +586,74 @@ main {
 
 /* ===== CTA ACTION HUB (TRUNG TÂM NÚT CTA ĐIỀU HƯỚNG TỔNG QUAN) ===== */
 .cta-hub-section {
-  margin-top: 10px;
-  margin-bottom: 24px;
+  margin-top: 14px;
+  margin-bottom: 28px;
 }
 .cta-hub-intro {
-  margin-bottom: 16px;
+  margin-bottom: 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.cta-hub-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 .cta-hub-intro h2 {
-  font-size: 1.25rem;
+  font-size: 1.3rem;
   font-weight: 800;
   color: var(--text-main);
   display: flex;
   align-items: center;
   gap: 8px;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+.cta-hub-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(2, 132, 199, 0.15), rgba(139, 92, 246, 0.15));
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  color: var(--accent-rain);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+.cta-hub-hint {
+  font-size: 0.84rem;
+  color: var(--text-muted);
 }
 .cta-hub-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
+  gap: 24px;
 }
+@media (max-width: 880px) {
+  .cta-hub-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+}
+
 .cta-action-card {
   position: relative;
   background: var(--card-bg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--glass-border);
-  border-radius: 20px;
-  padding: 22px;
+  border-radius: 22px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   box-shadow: var(--card-shadow);
-  transition: all 0.28s ease;
+  transition: transform 0.32s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.32s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.32s ease;
   overflow: hidden;
+  cursor: pointer;
+  text-align: left;
 }
 .cta-action-card::before {
   content: '';
@@ -630,106 +662,296 @@ main {
   left: 0;
   right: 0;
   height: 4px;
+  z-index: 5;
+  transition: height 0.25s ease, opacity 0.25s ease;
+}
+.cta-action-card.theme-blue::before {
   background: linear-gradient(90deg, #0284c7, #38bdf8);
-  opacity: 0;
-  transition: opacity 0.25s ease;
+}
+.cta-action-card.theme-purple::before {
+  background: linear-gradient(90deg, #7c3aed, #c084fc);
+}
+.cta-action-card.theme-emerald::before {
+  background: linear-gradient(90deg, #059669, #34d399);
+}
+.cta-action-card.theme-amber::before {
+  background: linear-gradient(90deg, #d97706, #fbbf24);
 }
 .cta-action-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--banner-shadow);
-  border-color: rgba(56, 189, 248, 0.4);
+  transform: translateY(-6px);
 }
 .cta-action-card:hover::before {
-  opacity: 1;
+  height: 5px;
+}
+.cta-action-card.theme-blue:hover {
+  border-color: rgba(56, 189, 248, 0.55);
+  box-shadow: 0 20px 40px -10px rgba(2, 132, 199, 0.28), 0 6px 14px rgba(0, 0, 0, 0.08);
+}
+.cta-action-card.theme-purple:hover {
+  border-color: rgba(168, 85, 247, 0.55);
+  box-shadow: 0 20px 40px -10px rgba(124, 58, 237, 0.28), 0 6px 14px rgba(0, 0, 0, 0.08);
+}
+.cta-action-card.theme-emerald:hover {
+  border-color: rgba(52, 211, 153, 0.55);
+  box-shadow: 0 20px 40px -10px rgba(16, 185, 129, 0.28), 0 6px 14px rgba(0, 0, 0, 0.08);
+}
+.cta-action-card.theme-amber:hover {
+  border-color: rgba(251, 191, 36, 0.55);
+  box-shadow: 0 20px 40px -10px rgba(245, 158, 11, 0.28), 0 6px 14px rgba(0, 0, 0, 0.08);
 }
 
-.cta-card-top {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: 14px;
+/* Banner ảnh trực quan đầu thẻ */
+.cta-card-banner {
+  position: relative;
+  height: 170px;
+  width: 100%;
+  overflow: hidden;
+  background: #0f172a;
 }
+.cta-action-card.theme-blue .cta-card-banner {
+  background: linear-gradient(135deg, #0c4a6e 0%, #0369a1 50%, #0284c7 100%);
+}
+.cta-action-card.theme-purple .cta-card-banner {
+  background: linear-gradient(135deg, #3b0764 0%, #6b21a8 50%, #7c3aed 100%);
+}
+.cta-action-card.theme-emerald .cta-card-banner {
+  background: linear-gradient(135deg, #022c22 0%, #065f46 50%, #059669 100%);
+}
+.cta-action-card.theme-amber .cta-card-banner {
+  background: linear-gradient(135deg, #451a03 0%, #92400e 50%, #d97706 100%);
+}
+
+.cta-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), filter 0.3s ease, opacity 0.3s ease;
+  filter: brightness(0.92) contrast(1.05);
+}
+.cta-action-card:hover .cta-card-img {
+  transform: scale(1.08);
+  filter: brightness(1) contrast(1.08);
+}
+.cta-card-banner-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.15) 0%, rgba(15, 23, 42, 0.45) 50%, rgba(15, 23, 42, 0.88) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+.cta-card-banner-top {
+  position: absolute;
+  top: 14px;
+  left: 16px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 2;
+}
+.cta-card-banner-bottom {
+  position: absolute;
+  bottom: 12px;
+  left: 16px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 2;
+}
+.cta-card-category {
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  color: rgba(255, 255, 255, 0.92);
+  text-transform: uppercase;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+}
+
+/* Icon & Badge */
 .cta-card-icon-box {
-  width: 48px;
-  height: 48px;
-  border-radius: 14px;
-  background: var(--card-subtle);
-  border: 1px solid var(--glass-border);
+  width: 44px;
+  height: 44px;
+  border-radius: 13px;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.6rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-size: 1.45rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
   flex-shrink: 0;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
+.cta-action-card:hover .cta-card-icon-box {
+  transform: scale(1.12) rotate(4deg);
+}
+
 .cta-card-badge {
   font-size: 0.72rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  padding: 4px 10px;
+  padding: 5px 12px;
   border-radius: 20px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
 }
 .cta-card-badge.blue {
-  background: rgba(2, 132, 199, 0.15);
-  color: #38bdf8;
-  border: 1px solid rgba(56, 189, 248, 0.35);
+  background: rgba(2, 132, 199, 0.35);
+  color: #bae6fd;
+  border: 1px solid rgba(56, 189, 248, 0.5);
 }
 .cta-card-badge.purple {
-  background: rgba(168, 85, 247, 0.15);
-  color: #c084fc;
-  border: 1px solid rgba(168, 85, 247, 0.35);
+  background: rgba(124, 58, 237, 0.35);
+  color: #e9d5ff;
+  border: 1px solid rgba(168, 85, 247, 0.5);
 }
 .cta-card-badge.emerald {
-  background: rgba(16, 185, 129, 0.15);
-  color: #34d399;
-  border: 1px solid rgba(16, 185, 129, 0.35);
+  background: rgba(5, 150, 105, 0.35);
+  color: #a7f3d0;
+  border: 1px solid rgba(16, 185, 129, 0.5);
 }
 .cta-card-badge.amber {
-  background: rgba(245, 158, 11, 0.15);
-  color: #fbbf24;
-  border: 1px solid rgba(245, 158, 11, 0.35);
+  background: rgba(217, 119, 6, 0.35);
+  color: #fde68a;
+  border: 1px solid rgba(245, 158, 11, 0.5);
 }
 
+.cta-live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #34d399;
+  box-shadow: 0 0 8px #34d399;
+  animation: ctaLivePulse 1.6s infinite ease-in-out;
+}
+@keyframes ctaLivePulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.8); }
+}
+
+/* Thân nội dung thẻ */
+.cta-card-body {
+  padding: 20px 22px 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex-grow: 1;
+  gap: 16px;
+}
 .cta-card-title {
-  font-size: 1.15rem;
+  font-size: 1.18rem;
   font-weight: 800;
   color: var(--text-main);
-  margin-bottom: 6px;
-  line-height: 1.3;
+  margin-bottom: 8px;
+  line-height: 1.35;
+  transition: color 0.25s ease;
 }
-.cta-card-desc {
-  font-size: 0.86rem;
-  color: var(--text-sub);
-  line-height: 1.5;
-  margin-bottom: 18px;
-  flex-grow: 1;
+.cta-action-card.theme-blue:hover .cta-card-title { color: #0284c7; }
+.cta-action-card.theme-purple:hover .cta-card-title { color: #8b5cf6; }
+.cta-action-card.theme-emerald:hover .cta-card-title { color: #059669; }
+.cta-action-card.theme-amber:hover .cta-card-title { color: #d97706; }
+
+:root:not([data-theme="coastal-day"]):not([data-theme="sky-bright"]) .cta-action-card.theme-blue:hover .cta-card-title {
+  color: #38bdf8;
+}
+:root:not([data-theme="coastal-day"]):not([data-theme="sky-bright"]) .cta-action-card.theme-purple:hover .cta-card-title {
+  color: #c084fc;
+}
+:root:not([data-theme="coastal-day"]):not([data-theme="sky-bright"]) .cta-action-card.theme-emerald:hover .cta-card-title {
+  color: #34d399;
+}
+:root:not([data-theme="coastal-day"]):not([data-theme="sky-bright"]) .cta-action-card.theme-amber:hover .cta-card-title {
+  color: #fbbf24;
 }
 
+.cta-card-desc {
+  font-size: 0.88rem;
+  color: var(--text-sub);
+  line-height: 1.55;
+  margin-bottom: 14px;
+}
+
+.cta-card-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.cta-chip {
+  font-size: 0.74rem;
+  font-weight: 600;
+  padding: 5px 11px;
+  border-radius: 8px;
+  background: var(--card-subtle);
+  border: 1px solid var(--glass-border);
+  color: var(--text-sub);
+  transition: all 0.2s ease;
+}
+.cta-action-card.theme-blue:hover .cta-chip {
+  border-color: rgba(2, 132, 199, 0.4);
+  background: rgba(2, 132, 199, 0.08);
+  color: var(--text-main);
+}
+.cta-action-card.theme-purple:hover .cta-chip {
+  border-color: rgba(124, 58, 237, 0.4);
+  background: rgba(124, 58, 237, 0.08);
+  color: var(--text-main);
+}
+.cta-action-card.theme-emerald:hover .cta-chip {
+  border-color: rgba(5, 150, 105, 0.4);
+  background: rgba(5, 150, 105, 0.08);
+  color: var(--text-main);
+}
+.cta-action-card.theme-amber:hover .cta-chip {
+  border-color: rgba(217, 119, 6, 0.4);
+  background: rgba(217, 119, 6, 0.08);
+  color: var(--text-main);
+}
+
+/* Nút CTA tương tác */
 .cta-button {
   width: 100%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 12px 18px;
-  border-radius: 12px;
-  font-size: 0.9rem;
+  padding: 13px 20px;
+  border-radius: 14px;
+  font-size: 0.94rem;
   font-weight: 700;
   border: 0;
   cursor: pointer;
   transition: all 0.25s ease;
   font-family: inherit;
 }
+.cta-btn-arrow {
+  display: inline-block;
+  font-size: 1.15rem;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.cta-action-card:hover .cta-btn-arrow {
+  transform: translateX(6px);
+}
+
 .cta-button.primary {
-  background: linear-gradient(135deg, #0284c7 0%, #02659a 100%);
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
   color: #ffffff;
   box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
 }
 .cta-button.primary:hover {
   background: linear-gradient(135deg, #0369a1 0%, #075985 100%);
-  box-shadow: 0 6px 18px rgba(2, 132, 199, 0.5);
-  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(2, 132, 199, 0.5);
+  transform: translateY(-2px);
 }
 
 .cta-button.secondary {
@@ -739,8 +961,8 @@ main {
 }
 .cta-button.secondary:hover {
   background: linear-gradient(135deg, #6d28d9 0%, #5b21b6 100%);
-  box-shadow: 0 6px 18px rgba(124, 58, 237, 0.5);
-  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(124, 58, 237, 0.5);
+  transform: translateY(-2px);
 }
 
 .cta-button.emerald {
@@ -750,8 +972,8 @@ main {
 }
 .cta-button.emerald:hover {
   background: linear-gradient(135deg, #047857 0%, #065f46 100%);
-  box-shadow: 0 6px 18px rgba(5, 150, 105, 0.5);
-  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(5, 150, 105, 0.5);
+  transform: translateY(-2px);
 }
 
 .cta-button.amber {
@@ -761,8 +983,8 @@ main {
 }
 .cta-button.amber:hover {
   background: linear-gradient(135deg, #b45309 0%, #92400e 100%);
-  box-shadow: 0 6px 18px rgba(217, 119, 6, 0.5);
-  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(217, 119, 6, 0.5);
+  transform: translateY(-2px);
 }
 
 /* Subpage nav footer */
