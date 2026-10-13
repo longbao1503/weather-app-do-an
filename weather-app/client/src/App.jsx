@@ -586,196 +586,392 @@ function SubpageScenicBanner({
   );
 }
 
-// Ánh xạ gợi ý hoạt động thực tế sang các thẻ giàu hình ảnh và trực quan
-function getEnrichedSuggestions(weatherData) {
+// Hệ thống đề xuất hoạt động thực tế & phong cách sống thông minh theo địa lý và thời tiết
+function getEnrichedSuggestions(weatherData, place) {
   if (!weatherData) return [];
-  const rawSuggestions = weatherData.suggestions || [];
   const cur = weatherData.current || {};
+  const today = weatherData.daily?.[0] || {};
+  const locName = (place?.name || weatherData?.locationName || '').toLowerCase();
 
-  return rawSuggestions.map((text, idx) => {
-    const s = text.toLowerCase();
+  const temp = cur.temp ?? 28;
+  const id = cur.id ?? 800;
+  const wind = cur.wind ?? 10;
+  const rainSum = today.rain ?? (cur.rain ?? 0);
+  const isThunder = id >= 200 && id < 300;
+  const isRainy = (id >= 300 && id < 600) || rainSum >= 2;
+  const isCold = temp < 19;
+  const isCool = temp >= 19 && temp < 25;
+  const isHot = temp >= 33;
+  const isClear = id === 800 || (id > 800 && (cur.clouds ?? 0) < 45);
+  const highUV = (today.uv ?? 0) >= 6 || (isClear && temp >= 30);
+  const badAir = (weatherData.airQuality?.aqi ?? 0) > 100;
 
-    // 1. Đọc sách / xem phim / trong nhà
-    if (s.includes('sách') || s.includes('phim') || s.includes('trong nhà') || s.includes('nghỉ ngơi')) {
-      return {
-        title: 'Đọc Sách & Xem Phim Trong Nhà',
-        desc: 'Không gian ấm cúng, thưởng thức tách trà nóng hoặc bộ phim hay trong khi lắng nghe tiếng mưa rơi.',
-        category: 'TRONG NHÀ & THƯ THÁI',
-        status: 'RẤT PHÙ HỢP',
-        statusType: 'success',
-        icon: '☕',
-        theme: 'blue',
-        timeHint: 'Buổi chiều / Tối',
-        locationHint: 'Tại nhà / Quán cafe sách',
-        image: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=700&q=80',
-      };
+  // Phân tích đặc thù địa lý / vùng miền
+  const isCoastal = /vạn ninh|nha trang|cam ranh|ninh hòa|khánh hòa|đà nẵng|vũng tàu|quy nhơn|bình định|phú quốc|hải phòng|quảng ninh|hạ long|bình thuận|phan thiết|mũi né|sầm sơn|cửa lò|phú yên|tuy hòa|kiên giang|cát bà|côn đảo|biển|vịnh|đảo|bãi|cảng/.test(locName);
+  const isHighland = /đà lạt|lâm đồng|sa pa|sapa|lào cai|hà giang|mộc châu|sơn la|tam đảo|ba vì|pleiku|gia lai|buôn ma thuột|đắk lắk|kon tum|cao nguyên|núi|đèo|bảo lộc/.test(locName);
+  const isUrban = /hà nội|hồ chí minh|sài gòn|hcm|thủ đức|biên hòa|bình dương|cần thơ|huế|hải phòng/.test(locName);
+
+  // Seed xoay vòng theo địa danh và ngày để tránh lặp lại nhàm chán
+  const charSum = locName.split('').reduce((sum, ch) => sum + ch.charCodeAt(0), 0);
+  const dateNum = new Date().getDate();
+  const seed = (charSum + dateNum) % 100;
+
+  const suggestions = [];
+
+  // ==========================================
+  // 1. TRẢI NGHIỆM ĐỊA PHƯƠNG & THIÊN NHIÊN
+  // ==========================================
+  if (isThunder) {
+    suggestions.push({
+      title: 'Tạm Hoãn Hoạt Động Ngoài Trời & Trú Nơi Kiên Cố',
+      desc: 'Đang có sấm chớp nguy cơ gió lốc giật mạnh. Hãy ở trong nhà kiên cố, tránh xa cửa sổ, cây cao và vùng trũng ngập.',
+      category: 'AN TOÀN LÀ TRÊN HẾT',
+      status: 'BẮT BUỘC',
+      statusType: 'warning',
+      icon: '🛡️',
+      theme: 'amber',
+      timeHint: 'Suốt đợt thời tiết xấu',
+      locationHint: 'Công trình kiên cố',
+      image: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=700&q=80',
+    });
+  } else if (isCoastal) {
+    if (isRainy) {
+      if (seed % 2 === 0) {
+        suggestions.push({
+          title: 'Thưởng Thức Hải Sản Nướng & Lẩu Nóng Ven Vịnh',
+          desc: `Mưa biển se mát là thời điểm tuyệt nhất để thưởng thức ghẹ hấp sả, mực một nắng nướng muối ớt và lẩu hải sản chua cay thơm nức tại ${place?.name || 'ven biển'}.`,
+          category: 'ẨM THỰC ĐẶC SẢN BIỂN',
+          status: 'TUYỆT HẢO',
+          statusType: 'success',
+          icon: '🦀',
+          theme: 'amber',
+          timeHint: '17h00 – 21h00',
+          locationHint: 'Làng chài / Quán ven biển',
+          image: 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=700&q=80',
+        });
+      } else {
+        suggestions.push({
+          title: 'Ngắm Sóng Biển & Trò Chuyện Tại Quán Cafe Ven Đồi',
+          desc: 'Lắng nghe tiếng mưa hòa cùng tiếng sóng vỗ rì rào từ vị trí trên cao, nhâm nhi tách trà ấm và ngắm trọn cảnh vịnh biển thơ mộng.',
+          category: 'THƯ THÁI VEN BIỂN',
+          status: 'LÃNG MẠN',
+          statusType: 'info',
+          icon: '🌊',
+          theme: 'blue',
+          timeHint: '14h30 – 18h00',
+          locationHint: 'Quán cafe view biển',
+          image: 'https://images.unsplash.com/photo-1517256064527-09c73fc73e38?auto=format&fit=crop&w=700&q=80',
+        });
+      }
+    } else if (wind < 28 && (isClear || isCool || isHot)) {
+      if (seed % 2 === 0) {
+        suggestions.push({
+          title: 'Chèo SUP & Kayak Khám Phá Vịnh Biển Êm Ả',
+          desc: 'Mặt nước vịnh biển êm sóng trong xanh, trải nghiệm cảm giác lướt ván chèo ngắm cảnh non nước tráng lệ giữa biển khơi bao la.',
+          category: 'THỂ THAO NƯỚC & TRẢI NGHIỆM',
+          status: 'RẤT ĐƯỢC YÊU THÍCH',
+          statusType: 'info',
+          icon: '🏄',
+          theme: 'blue',
+          timeHint: '06h30 – 09h00 / 16h00',
+          locationHint: 'Vịnh biển / Đầm nước êm',
+          image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=700&q=80',
+        });
+      } else {
+        suggestions.push({
+          title: 'Lặn Biển Khám Phá Rạn San Hô & Sinh Vật Biển',
+          desc: 'Tầm nhìn dưới nước trong vắt lý tưởng để đeo kính lặn ngắm nhìn thế giới san hô tự nhiên cùng những đàn cá bơi lội rực rỡ sắc màu.',
+          category: 'THIÊN NHIÊN BIỂN ĐẢO',
+          status: 'CỰC KỲ HẤP DẪN',
+          statusType: 'success',
+          icon: '🤿',
+          theme: 'blue',
+          timeHint: '08h00 – 11h30',
+          locationHint: 'Bãi rạn san hô / Điểm lặn',
+          image: 'https://images.unsplash.com/photo-1682687220063-4742bd7fd538?auto=format&fit=crop&w=700&q=80',
+        });
+      }
+    } else {
+      suggestions.push({
+        title: 'Dạo Bờ Cát Đón Bình Minh Hoặc Hoàng Hôn Biển',
+        desc: 'Tận hưởng từng làn gió biển tươi mát, tản bộ chân trần trên bãi cát mịn và lưu lại những khoảnh khắc ảnh kỷ niệm tuyệt đẹp.',
+        category: 'THƯ THÁI & CHECK-IN',
+        status: 'HOÀN HẢO',
+        statusType: 'info',
+        icon: '🌅',
+        theme: 'purple',
+        timeHint: '05h30 – 07h00 / 17h00',
+        locationHint: 'Bờ cát trắng ven biển',
+        image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=700&q=80',
+      });
     }
-
-    // 2. Cà phê / bảo tàng / trung tâm thương mại / mua sắm
-    if (s.includes('cà phê') || s.includes('bảo tàng') || s.includes('thương mại') || s.includes('mua sắm') || s.includes('triển lãm')) {
-      return {
-        title: 'Cà Phê, Bảo Tàng & Mua Sắm',
-        desc: 'Gặp gỡ bạn bè tại các quán cà phê ấm cúng, dạo quanh triển lãm nghệ thuật hoặc giải trí tại trung tâm thương mại.',
-        category: 'GẶP GỠ & TRẢI NGHIỆM',
-        status: 'LÝ TƯỞNG',
+  } else if (isHighland) {
+    if (isRainy || isCold) {
+      suggestions.push({
+        title: 'Thưởng Thức Lẩu Nóng & BBQ Than Hồng Cao Nguyên',
+        desc: 'Trong cái se lạnh của phố núi, quây quần bên bếp than hồng xì xèo cùng nồi lẩu thơm lừng bốc khói ấm sực lòng người.',
+        category: 'ẨM THỰC ĐẶC SẢN NÚI',
+        status: 'HOÀN HẢO',
+        statusType: 'success',
+        icon: '🍲',
+        theme: 'amber',
+        timeHint: '17h30 – 21h30',
+        locationHint: 'Quán nướng sân vườn phố núi',
+        image: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=700&q=80',
+      });
+    } else {
+      suggestions.push({
+        title: 'Săn Mây Cao Nguyên & Ngắm Toàn Cảnh Rừng Thông',
+        desc: 'Sáng sớm những dải mây trắng bồng bềnh phủ kín thung lũng đồi núi, mang lại cảm giác bình yên thư thái tuyệt đối.',
+        category: 'THIÊN NHIÊN KỲ VỸ',
+        status: 'TUYỆT ĐẸP',
+        statusType: 'info',
+        icon: '☁️',
+        theme: 'purple',
+        timeHint: '05h00 – 07h30',
+        locationHint: 'Đỉnh đồi / Điểm ngắm cảnh',
+        image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=700&q=80',
+      });
+    }
+  } else {
+    if (isRainy) {
+      suggestions.push({
+        title: 'Khám Phá Bảo Tàng Nghệ Thuật & Triển Lãm Di Sản',
+        desc: 'Tìm hiểu những hiện vật lịch sử quý giá, tác phẩm điêu khắc và mỹ thuật đương đại trong không gian trưng bày yên ả.',
+        category: 'VĂN HÓA & LỊCH SỬ',
+        status: 'RẤT ĐÁNG TRẢI NGHIỆM',
         statusType: 'info',
         icon: '🏛️',
         theme: 'purple',
-        timeHint: '14h00 – 19h00',
-        locationHint: 'Quán cafe / TTTM',
-        image: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=700&q=80',
-      };
-    }
-
-    // 3. Áo mưa / ô dù / ra ngoài / giao thông
-    if (s.includes('áo mưa') || s.includes('ô dù') || s.includes('ra ngoài') || s.includes('giao thông')) {
-      return {
-        title: 'Trang Bị Áo Mưa & Di Chuyển Cẩn Thận',
-        desc: 'Đường xá trơn trượt do mưa ướt. Nhớ chuẩn bị sẵn áo mưa hoặc ô gấp, chú ý giữ khoảng cách an toàn khi lái xe.',
-        category: 'AN TOÀN DI CHUYỂN',
-        status: 'CẦN LƯU Ý',
-        statusType: 'warning',
-        icon: '☔',
-        theme: 'amber',
-        timeHint: 'Khi ra ngoài',
-        locationHint: 'Tuyến đường giao thông',
-        image: 'https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?auto=format&fit=crop&w=700&q=80',
-      };
-    }
-
-    // 4. Bơi lội / tắm biển / thể thao dưới nước
-    if (s.includes('bơi') || s.includes('tắm biển') || s.includes('hồ bơi')) {
-      return {
-        title: 'Bơi Lội & Tắm Biển Mát Mẻ',
-        desc: 'Làn nước biển trong xanh giúp giải nhiệt cơ thể cực kỳ sảng khoái. Khuyên nên tắm vào sáng sớm hoặc chiều sau 16h.',
-        category: 'THỂ THAO DƯỚI NƯỚC',
-        status: 'RẤT THÍCH HỢP',
+        timeHint: '09h00 – 16h30',
+        locationHint: 'Bảo tàng / Nhà triển lãm',
+        image: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=700&q=80',
+      });
+    } else {
+      suggestions.push({
+        title: 'Cắm Trại Dã Ngoại & Nướng BBQ Bên Bờ Hồ',
+        desc: 'Tiết trời thoáng đãng rất tuyệt để dựng lều cắm trại trên thảm cỏ xanh, nướng thịt thơm lừng và gắn kết bạn bè.',
+        category: 'DÃ NGOẠI & THIÊN NHIÊN',
+        status: 'LÝ TƯỞNG',
         statusType: 'success',
-        icon: '🏊',
-        theme: 'blue',
-        timeHint: 'Sáng sớm / Sau 16h',
-        locationHint: 'Bãi tắm / Hồ bơi',
-        image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=700&q=80',
-      };
+        icon: '🏕️',
+        theme: 'emerald',
+        timeHint: '15h00 – 19h00 / Cuối tuần',
+        locationHint: 'Khu sinh thái / Ven hồ',
+        image: 'https://images.unsplash.com/photo-1510312305653-8ed496efae75?auto=format&fit=crop&w=700&q=80',
+      });
     }
+  }
 
-    // 5. Nắng nóng / bù nước / điện giải
-    if (s.includes('nắng') || s.includes('uống') || s.includes('nước') || s.includes('bù nước')) {
-      return {
-        title: 'Bù Nước Điện Giải & Nghỉ Ngơi Râm Mát',
-        desc: 'Nhiệt độ ngoài trời tăng cao, hãy bổ sung nước đều đặn từ 2 – 2.5 lít/ngày và tránh ra nắng gắt từ 11h–15h.',
-        category: 'BẢO VỆ SỨC KHỎE',
+  // ==========================================
+  // 2. NGHỆ THUẬT, WORKSHOP & GIẢI TRÍ TRONG NHÀ
+  // ==========================================
+  if (seed % 3 === 0) {
+    suggestions.push({
+      title: 'Tham Gia Workshop Làm Gốm & Vẽ Tranh Sáng Tạo',
+      desc: 'Tự tay nhào nặn chiếc tách gốm mộc mạc hoặc hoàn thành bức tranh canvas rực rỡ dưới nền nhạc acoustic êm ái.',
+      category: 'SÁNG TẠO & NGHỆ THUẬT',
+      status: 'THƯ GIÃN ĐẦU ÓC',
+      statusType: 'info',
+      icon: '🎨',
+      theme: 'purple',
+      timeHint: '09h30 – 12h00 / 14h00',
+      locationHint: 'Studio thủ công / Workshop',
+      image: 'https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?auto=format&fit=crop&w=700&q=80',
+    });
+  } else if (seed % 3 === 1) {
+    suggestions.push({
+      title: 'Xem Phim Bom Tấn Rạp Chiếu Công Nghệ Mới',
+      desc: 'Thưởng thức những thước phim điện ảnh đỉnh cao với âm thanh vòm sống động và màn chiếu siêu nét, tránh nóng hoặc mưa hoàn hảo.',
+      category: 'GIẢI TRÍ ĐỈNH CAO',
+      status: 'HẤP DẪN',
+      statusType: 'info',
+      icon: '🎬',
+      theme: 'blue',
+      timeHint: '14h30 – 21h30',
+      locationHint: 'Rạp chiếu phim / TTTM',
+      image: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=700&q=80',
+    });
+  } else {
+    suggestions.push({
+      title: 'Giao Lưu Boardgame Thú Vị Cùng Nhóm Bạn',
+      desc: 'Thử tài tư duy với Ma Sói, Catan, Splendor hay Uno trong không gian thân thiện, tạo nên những tràng cười sảng khoái.',
+      category: 'GIAO LƯU & KẾT NỐI',
+      status: 'VUI VẺ',
+      statusType: 'info',
+      icon: '🎲',
+      theme: 'blue',
+      timeHint: '14h00 – 18h00 / Tối',
+      locationHint: 'Quán Boardgame cafe',
+      image: 'https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?auto=format&fit=crop&w=700&q=80',
+    });
+  }
+
+  // ==========================================
+  // 3. THỂ THAO, SỨC KHỎE & HỒI PHỤC NĂNG LƯỢNG
+  // ==========================================
+  if (isRainy || badAir || isThunder) {
+    if (seed % 2 === 0) {
+      suggestions.push({
+        title: 'Thư Giãn Massage Đá Nóng & Liệu Pháp Spa Thảo Mộc',
+        desc: 'Hương tinh dầu thơm dịu cùng hơi ấm từ đá núi lửa giúp giãn cơ bắp, giải tỏa căng thẳng và thải độc tố cơ thể.',
+        category: 'CHĂM SÓC SỨC KHỎE',
+        status: 'CỰC KỲ DỄ CHỊU',
+        statusType: 'success',
+        icon: '🌿',
+        theme: 'emerald',
+        timeHint: '15h00 – 20h00',
+        locationHint: 'Trung tâm Spa & Trị liệu',
+        image: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=700&q=80',
+      });
+    } else {
+      suggestions.push({
+        title: 'Tập Luyện Thể Hình Gym, Yoga Hoặc Pilates',
+        desc: 'Không gian phòng tập máy lạnh tiện nghi giúp duy trì phong độ thể chất, tăng cường sức đề kháng và đốt cháy calo.',
+        category: 'THỂ LỰC & SỨC BỀN',
         status: 'KHUYÊN DÙNG',
-        statusType: 'warning',
-        icon: '💧',
-        theme: 'amber',
-        timeHint: '11h00 – 15h00',
-        locationHint: 'Khu vực bóng râm',
-        image: 'https://images.unsplash.com/photo-1559839914-17aae19cec71?auto=format&fit=crop&w=700&q=80',
-      };
+        statusType: 'info',
+        icon: '🧘',
+        theme: 'purple',
+        timeHint: '06h30 – 08h30 / 17h30',
+        locationHint: 'Phòng Gym & Yoga',
+        image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=700&q=80',
+      });
     }
-
-    // 6. Chạy bộ / đạp xe / ngoài trời
-    if (s.includes('chạy bộ') || s.includes('đạp xe') || s.includes('ngoài trời') || s.includes('vận động')) {
-      return {
-        title: 'Chạy Bộ, Đạp Xe & Rèn Luyện Thể Lực',
-        desc: 'Thời tiết mát mẻ thông thoáng, cực kỳ lý tưởng cho các buổi chạy cự ly, đạp xe ven hồ hoặc thể dục ngoài công viên.',
+  } else {
+    if (seed % 2 === 0) {
+      suggestions.push({
+        title: 'Chạy Bộ Nâng Cao Thể Lực Ven Đường Hoa / Công Viên',
+        desc: 'Không khí trong lành mát mẻ cực kỳ lý tưởng để hoàn thành cự ly chạy 5km - 10km, nâng cao sức bền tim mạch.',
         category: 'VẬN ĐỘNG NĂNG ĐỘNG',
         status: 'HOÀN HẢO',
         statusType: 'success',
         icon: '🏃',
         theme: 'emerald',
-        timeHint: '06h00 – 08h00 / 17h00',
-        locationHint: 'Công viên / Đường ven biển',
+        timeHint: '05h30 – 07h30 / 17h00',
+        locationHint: 'Đường ven hồ / Công viên',
         image: 'https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?auto=format&fit=crop&w=700&q=80',
-      };
-    }
-
-    // 7. Picnic / dã ngoại / cắm trại / SUP
-    if (s.includes('picnic') || s.includes('sup') || s.includes('lặn') || s.includes('dã ngoại') || s.includes('cắm trại')) {
-      return {
-        title: 'Cắm Trại, Picnic & Khám Phá Thiên Nhiên',
-        desc: 'Thời tiết tạnh ráo trong lành, rất thích hợp cho những buổi picnic cùng người thân hoặc trải nghiệm chèo SUP trên hồ.',
-        category: 'DÃ NGOẠI & DU LỊCH',
-        status: 'TUYỆT VỜI',
-        statusType: 'info',
-        icon: '🏕️',
-        theme: 'emerald',
-        timeHint: 'Buổi chiều / Cuối tuần',
-        locationHint: 'Khu dã ngoại / Ven hồ',
-        image: 'https://images.unsplash.com/photo-1510312305653-8ed496efae75?auto=format&fit=crop&w=700&q=80',
-      };
-    }
-
-    // 8. Kem chống nắng / kính râm
-    if (s.includes('chống nắng') || s.includes('kính râm') || s.includes('uv')) {
-      return {
-        title: 'Thoa Kem Chống Nắng & Che Chắn Kỹ',
-        desc: 'Chỉ số tia UV ban ngày có thể gây hại cho da. Hãy thoa kem chống nắng SPF 50+ và mang kính râm bảo vệ mắt.',
-        category: 'CHĂM SÓC LÀN DA',
-        status: 'CẦN THIẾT',
-        statusType: 'warning',
-        icon: '🕶️',
-        theme: 'amber',
-        timeHint: 'Khi ra nắng',
-        locationHint: 'Khu vực ngoài trời',
-        image: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=700&q=80',
-      };
-    }
-
-    // 9. Đi dạo / mặc ấm / món nóng khi trời lạnh
-    if (s.includes('ấm') || s.includes('món nóng') || s.includes('dạo nhẹ') || s.includes('se lạnh')) {
-      return {
-        title: 'Tản Bộ Thư Thái & Thưởng Thức Món Nóng',
-        desc: 'Tiết trời se lạnh rất dễ chịu để đi dạo nhẹ nhàng. Nhớ mặc áo khoác ấm và thưởng thức tô phở, lẩu hoặc tách trà nóng.',
-        category: 'ẨM THỰC & TẢN BỘ',
-        status: 'RẤT THÍCH HỢP',
+      });
+    } else {
+      suggestions.push({
+        title: 'Giao Lưu Cầu Lông, Tennis Hoặc Pickleball',
+        desc: 'Những pha cầu kịch tính rèn luyện tốc độ phản xạ và phối hợp ăn ý cùng đồng đội trên sân tập đạt chuẩn.',
+        category: 'THỂ THAO ĐỒNG ĐỘI',
+        status: 'HÀO HỨNG',
         statusType: 'success',
-        icon: '🍲',
-        theme: 'amber',
-        timeHint: 'Buổi sáng / Tối',
-        locationHint: 'Quán ăn / Phố đi bộ',
-        image: 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=700&q=80',
-      };
+        icon: '🏸',
+        theme: 'emerald',
+        timeHint: '17h00 – 19h30',
+        locationHint: 'Sân thi đấu thể thao',
+        image: 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?auto=format&fit=crop&w=700&q=80',
+      });
     }
+  }
 
-    // 10. Dông sét / thời tiết xấu / hoãn đi biển / tránh cây cao
-    if (s.includes('tránh') || s.includes('hoãn') || s.includes('cây') || s.includes('dông') || s.includes('thuyền')) {
-      return {
-        title: 'Tạm Hoãn Hoạt Động & Trú Nơi Kiên Cố',
-        desc: 'Thời tiết có yếu tố nguy cơ bất lợi như dông sét hoặc gió mạnh. Hãy ở trong nhà kiên cố, tránh xa cây cao và vùng trống trải.',
-        category: 'AN TOÀN LÀ TRÊN HẾT',
-        status: 'CẦN CHÚ Ý',
-        statusType: 'warning',
-        icon: '🛡️',
+  // ==========================================
+  // 4. ẨM THỰC ĐƯỜNG PHỐ & GẮN KẾT GIA ĐÌNH
+  // ==========================================
+  if (isRainy || isCold) {
+    if (seed % 2 === 0) {
+      suggestions.push({
+        title: 'Tự Nấu Ăn Tại Nhà & Gắn Kết Bữa Cơm Gia Đình',
+        desc: 'Trời mưa gió là cơ hội tuyệt vời để cả nhà vào bếp trổ tài những món ăn ngon miệng, quây quần bên mâm cơm ấm áp.',
+        category: 'ẤM CÚNG GIA ĐÌNH',
+        status: 'Ý NGHĨA',
+        statusType: 'success',
+        icon: '🍳',
         theme: 'amber',
-        timeHint: 'Suốt đợt thời tiết xấu',
-        locationHint: 'Khu vực kiên cố',
-        image: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=700&q=80',
-      };
+        timeHint: '11h30 / 18h30',
+        locationHint: 'Gian bếp gia đình',
+        image: 'https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&w=700&q=80',
+      });
+    } else {
+      suggestions.push({
+        title: 'Khám Phá Phố Ẩm Thực Đêm & Món Nóng Địa Phương',
+        desc: 'Tản bộ qua những hàng quán nghi ngút khói thơm, thưởng thức bát phở nóng, ốc luộc hay bánh căn giòn rụm.',
+        category: 'ẨM THỰC ĐƯỜNG PHỐ',
+        status: 'HẤP DẪN',
+        statusType: 'amber',
+        icon: '🍢',
+        theme: 'amber',
+        timeHint: '18h30 – 22h00',
+        locationHint: 'Khu ẩm thực đêm / Chợ phiên',
+        image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=700&q=80',
+      });
     }
+  } else {
+    suggestions.push({
+      title: 'Khám Phá Phố Ẩm Thực Đêm & Chợ Đêm Địa Phương',
+      desc: 'Hòa mình vào không khí nhộn nhịp về đêm, nếm thử đủ món ăn vặt đặc sắc đường phố và mua sắm lưu niệm thú vị.',
+      category: 'ẨM THỰC ĐƯỜNG PHỐ',
+      status: 'NHỘN NHỊP',
+      statusType: 'amber',
+      icon: '🍢',
+      theme: 'amber',
+      timeHint: '18h30 – 22h00',
+      locationHint: 'Chợ đêm / Tuyến phố đi bộ',
+      image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=700&q=80',
+    });
+  }
 
-    // 11. Fallback mặc định
-    const fallbackThemes = ['blue', 'purple', 'emerald'];
-    const fallbackIcons = ['🎯', '✨', '🌿'];
-    const fallbackImages = [
-      'https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?auto=format&fit=crop&w=700&q=80',
-      'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=700&q=80',
-      'https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=700&q=80'
-    ];
-    return {
-      title: text,
-      desc: 'Hoạt động được đề xuất dựa trên phân tích điều kiện nhiệt độ, độ ẩm và thời tiết thực tế tại địa phương.',
-      category: 'GỢI Ý HÔM NAY',
+  // ==========================================
+  // 5. LỐI SỐNG, BẢO VỆ SỨC KHỎE & AN TOÀN
+  // ==========================================
+  if (isRainy) {
+    suggestions.push({
+      title: 'Trang Bị Áo Mưa & Giữ Khoảng Cách Lái Xe An Toàn',
+      desc: 'Mặt đường ướt giảm độ bám của lốp xe. Nhớ chuẩn bị áo mưa gọn gàng, bật đèn sương mù và duy trì tốc độ an toàn.',
+      category: 'AN TOÀN GIAO THÔNG',
+      status: 'CẦN LƯU Ý',
+      statusType: 'warning',
+      icon: '☔',
+      theme: 'amber',
+      timeHint: 'Khi ra ngoài đường',
+      locationHint: 'Tuyến đường giao thông',
+      image: 'https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?auto=format&fit=crop&w=700&q=80',
+    });
+  } else if (highUV || isHot) {
+    suggestions.push({
+      title: 'Thoa Kem Chống Nắng SPF 50+ & Đeo Kính Râm Bảo Vệ Mắt',
+      desc: 'Bức xạ tia cực tím ban ngày khá mạnh. Hãy thoa kem chống nắng trước 20 phút khi ra ngoài và mang mũ nón che chắn kỹ.',
+      category: 'CHĂM SÓC LÀN DA',
+      status: 'BẮT BUỘC',
+      statusType: 'warning',
+      icon: '🕶️',
+      theme: 'amber',
+      timeHint: '10h00 – 15h30',
+      locationHint: 'Khu vực ngoài trời',
+      image: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=700&q=80',
+    });
+  } else if (isCold) {
+    suggestions.push({
+      title: 'Mặc Áo Ấm Giữ Nhiệt & Uống Trà Gừng Giữ Ấm Cổ',
+      desc: 'Nhiệt độ hạ thấp về đêm và sáng sớm. Chú ý giữ ấm cổ ngực, uống nước ấm pha gừng mật ong để tránh cảm lạnh.',
+      category: 'BẢO VỆ HỆ HÔ HẤP',
+      status: 'CẦN THIẾT',
+      statusType: 'warning',
+      icon: '🧣',
+      theme: 'amber',
+      timeHint: 'Sáng sớm & Đêm muộn',
+      locationHint: 'Không gian mở',
+      image: 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=700&q=80',
+    });
+  } else {
+    suggestions.push({
+      title: 'Đọc Sách Thư Giãn Bên Tách Cà Phê Hoặc Trà Ấm',
+      desc: 'Tiết trời thanh bình dịu nhẹ, dành cho bản thân khoảng lặng quý giá để nghiền ngẫm những trang sách hay và thư thái tâm hồn.',
+      category: 'THƯ THÁI TÂM HỒN',
       status: 'PHÙ HỢP',
       statusType: 'info',
-      icon: fallbackIcons[idx % fallbackIcons.length],
-      theme: fallbackThemes[idx % fallbackThemes.length],
-      timeHint: 'Thời gian linh hoạt',
-      locationHint: 'Địa điểm địa phương',
-      image: fallbackImages[idx % fallbackImages.length],
-    };
-  });
+      icon: '📖',
+      theme: 'blue',
+      timeHint: 'Buổi sáng / Chiều tà',
+      locationHint: 'Góc phòng / Quán cafe yên tĩnh',
+      image: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=700&q=80',
+    });
+  }
+
+  return suggestions;
 }
 
 export default function App() {
@@ -820,6 +1016,9 @@ export default function App() {
     return Math.round(celsius);
   };
   const unitLabel = `°${unit}`;
+
+  // Đề xuất phong phú theo thời tiết và vị trí
+  const enrichedSuggestions = useMemo(() => getEnrichedSuggestions(data, place), [data, place]);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -1572,12 +1771,12 @@ export default function App() {
                   </div>
                   <div className="suggestions-summary-tag">
                     <span className="tag-icon">🎯</span>
-                    <span>{data.suggestions?.length || 0} Đề xuất hữu ích</span>
+                    <span>{enrichedSuggestions.length} Đề xuất phong phú</span>
                   </div>
                 </div>
 
                 <div className="suggestions-visual-grid">
-                  {getEnrichedSuggestions(data).map((item, i) => (
+                  {enrichedSuggestions.map((item, i) => (
                     <div className={`suggestion-visual-card theme-${item.theme}`} key={i}>
                       <div className="suggestion-card-banner">
                         <img 
@@ -2203,12 +2402,12 @@ export default function App() {
                   </div>
                   <div className="suggestions-summary-tag">
                     <span className="tag-icon">🎯</span>
-                    <span>{data.suggestions?.length || 0} Đề xuất</span>
+                    <span>{enrichedSuggestions.length} Đề xuất phong phú</span>
                   </div>
                 </div>
 
                 <div className="suggestions-visual-grid">
-                  {getEnrichedSuggestions(data).map((item, i) => (
+                  {enrichedSuggestions.map((item, i) => (
                     <div className={`suggestion-visual-card theme-${item.theme}`} key={i}>
                       <div className="suggestion-card-banner">
                         <img 
