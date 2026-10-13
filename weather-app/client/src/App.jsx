@@ -586,6 +586,198 @@ function SubpageScenicBanner({
   );
 }
 
+// Ánh xạ gợi ý hoạt động thực tế sang các thẻ giàu hình ảnh và trực quan
+function getEnrichedSuggestions(weatherData) {
+  if (!weatherData) return [];
+  const rawSuggestions = weatherData.suggestions || [];
+  const cur = weatherData.current || {};
+
+  return rawSuggestions.map((text, idx) => {
+    const s = text.toLowerCase();
+
+    // 1. Đọc sách / xem phim / trong nhà
+    if (s.includes('sách') || s.includes('phim') || s.includes('trong nhà') || s.includes('nghỉ ngơi')) {
+      return {
+        title: 'Đọc Sách & Xem Phim Trong Nhà',
+        desc: 'Không gian ấm cúng, thưởng thức tách trà nóng hoặc bộ phim hay trong khi lắng nghe tiếng mưa rơi.',
+        category: 'TRONG NHÀ & THƯ THÁI',
+        status: 'RẤT PHÙ HỢP',
+        statusType: 'success',
+        icon: '☕',
+        theme: 'blue',
+        timeHint: 'Buổi chiều / Tối',
+        locationHint: 'Tại nhà / Quán cafe sách',
+        image: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=700&q=80',
+      };
+    }
+
+    // 2. Cà phê / bảo tàng / trung tâm thương mại / mua sắm
+    if (s.includes('cà phê') || s.includes('bảo tàng') || s.includes('thương mại') || s.includes('mua sắm') || s.includes('triển lãm')) {
+      return {
+        title: 'Cà Phê, Bảo Tàng & Mua Sắm',
+        desc: 'Gặp gỡ bạn bè tại các quán cà phê ấm cúng, dạo quanh triển lãm nghệ thuật hoặc giải trí tại trung tâm thương mại.',
+        category: 'GẶP GỠ & TRẢI NGHIỆM',
+        status: 'LÝ TƯỞNG',
+        statusType: 'info',
+        icon: '🏛️',
+        theme: 'purple',
+        timeHint: '14h00 – 19h00',
+        locationHint: 'Quán cafe / TTTM',
+        image: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=700&q=80',
+      };
+    }
+
+    // 3. Áo mưa / ô dù / ra ngoài / giao thông
+    if (s.includes('áo mưa') || s.includes('ô dù') || s.includes('ra ngoài') || s.includes('giao thông')) {
+      return {
+        title: 'Trang Bị Áo Mưa & Di Chuyển Cẩn Thận',
+        desc: 'Đường xá trơn trượt do mưa ướt. Nhớ chuẩn bị sẵn áo mưa hoặc ô gấp, chú ý giữ khoảng cách an toàn khi lái xe.',
+        category: 'AN TOÀN DI CHUYỂN',
+        status: 'CẦN LƯU Ý',
+        statusType: 'warning',
+        icon: '☔',
+        theme: 'amber',
+        timeHint: 'Khi ra ngoài',
+        locationHint: 'Tuyến đường giao thông',
+        image: 'https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?auto=format&fit=crop&w=700&q=80',
+      };
+    }
+
+    // 4. Bơi lội / tắm biển / thể thao dưới nước
+    if (s.includes('bơi') || s.includes('tắm biển') || s.includes('hồ bơi')) {
+      return {
+        title: 'Bơi Lội & Tắm Biển Mát Mẻ',
+        desc: 'Làn nước biển trong xanh giúp giải nhiệt cơ thể cực kỳ sảng khoái. Khuyên nên tắm vào sáng sớm hoặc chiều sau 16h.',
+        category: 'THỂ THAO DƯỚI NƯỚC',
+        status: 'RẤT THÍCH HỢP',
+        statusType: 'success',
+        icon: '🏊',
+        theme: 'blue',
+        timeHint: 'Sáng sớm / Sau 16h',
+        locationHint: 'Bãi tắm / Hồ bơi',
+        image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=700&q=80',
+      };
+    }
+
+    // 5. Nắng nóng / bù nước / điện giải
+    if (s.includes('nắng') || s.includes('uống') || s.includes('nước') || s.includes('bù nước')) {
+      return {
+        title: 'Bù Nước Điện Giải & Nghỉ Ngơi Râm Mát',
+        desc: 'Nhiệt độ ngoài trời tăng cao, hãy bổ sung nước đều đặn từ 2 – 2.5 lít/ngày và tránh ra nắng gắt từ 11h–15h.',
+        category: 'BẢO VỆ SỨC KHỎE',
+        status: 'KHUYÊN DÙNG',
+        statusType: 'warning',
+        icon: '💧',
+        theme: 'amber',
+        timeHint: '11h00 – 15h00',
+        locationHint: 'Khu vực bóng râm',
+        image: 'https://images.unsplash.com/photo-1559839914-17aae19cec71?auto=format&fit=crop&w=700&q=80',
+      };
+    }
+
+    // 6. Chạy bộ / đạp xe / ngoài trời
+    if (s.includes('chạy bộ') || s.includes('đạp xe') || s.includes('ngoài trời') || s.includes('vận động')) {
+      return {
+        title: 'Chạy Bộ, Đạp Xe & Rèn Luyện Thể Lực',
+        desc: 'Thời tiết mát mẻ thông thoáng, cực kỳ lý tưởng cho các buổi chạy cự ly, đạp xe ven hồ hoặc thể dục ngoài công viên.',
+        category: 'VẬN ĐỘNG NĂNG ĐỘNG',
+        status: 'HOÀN HẢO',
+        statusType: 'success',
+        icon: '🏃',
+        theme: 'emerald',
+        timeHint: '06h00 – 08h00 / 17h00',
+        locationHint: 'Công viên / Đường ven biển',
+        image: 'https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?auto=format&fit=crop&w=700&q=80',
+      };
+    }
+
+    // 7. Picnic / dã ngoại / cắm trại / SUP
+    if (s.includes('picnic') || s.includes('sup') || s.includes('lặn') || s.includes('dã ngoại') || s.includes('cắm trại')) {
+      return {
+        title: 'Cắm Trại, Picnic & Khám Phá Thiên Nhiên',
+        desc: 'Thời tiết tạnh ráo trong lành, rất thích hợp cho những buổi picnic cùng người thân hoặc trải nghiệm chèo SUP trên hồ.',
+        category: 'DÃ NGOẠI & DU LỊCH',
+        status: 'TUYỆT VỜI',
+        statusType: 'info',
+        icon: '🏕️',
+        theme: 'emerald',
+        timeHint: 'Buổi chiều / Cuối tuần',
+        locationHint: 'Khu dã ngoại / Ven hồ',
+        image: 'https://images.unsplash.com/photo-1510312305653-8ed496efae75?auto=format&fit=crop&w=700&q=80',
+      };
+    }
+
+    // 8. Kem chống nắng / kính râm
+    if (s.includes('chống nắng') || s.includes('kính râm') || s.includes('uv')) {
+      return {
+        title: 'Thoa Kem Chống Nắng & Che Chắn Kỹ',
+        desc: 'Chỉ số tia UV ban ngày có thể gây hại cho da. Hãy thoa kem chống nắng SPF 50+ và mang kính râm bảo vệ mắt.',
+        category: 'CHĂM SÓC LÀN DA',
+        status: 'CẦN THIẾT',
+        statusType: 'warning',
+        icon: '🕶️',
+        theme: 'amber',
+        timeHint: 'Khi ra nắng',
+        locationHint: 'Khu vực ngoài trời',
+        image: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=700&q=80',
+      };
+    }
+
+    // 9. Đi dạo / mặc ấm / món nóng khi trời lạnh
+    if (s.includes('ấm') || s.includes('món nóng') || s.includes('dạo nhẹ') || s.includes('se lạnh')) {
+      return {
+        title: 'Tản Bộ Thư Thái & Thưởng Thức Món Nóng',
+        desc: 'Tiết trời se lạnh rất dễ chịu để đi dạo nhẹ nhàng. Nhớ mặc áo khoác ấm và thưởng thức tô phở, lẩu hoặc tách trà nóng.',
+        category: 'ẨM THỰC & TẢN BỘ',
+        status: 'RẤT THÍCH HỢP',
+        statusType: 'success',
+        icon: '🍲',
+        theme: 'amber',
+        timeHint: 'Buổi sáng / Tối',
+        locationHint: 'Quán ăn / Phố đi bộ',
+        image: 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=700&q=80',
+      };
+    }
+
+    // 10. Dông sét / thời tiết xấu / hoãn đi biển / tránh cây cao
+    if (s.includes('tránh') || s.includes('hoãn') || s.includes('cây') || s.includes('dông') || s.includes('thuyền')) {
+      return {
+        title: 'Tạm Hoãn Hoạt Động & Trú Nơi Kiên Cố',
+        desc: 'Thời tiết có yếu tố nguy cơ bất lợi như dông sét hoặc gió mạnh. Hãy ở trong nhà kiên cố, tránh xa cây cao và vùng trống trải.',
+        category: 'AN TOÀN LÀ TRÊN HẾT',
+        status: 'CẦN CHÚ Ý',
+        statusType: 'warning',
+        icon: '🛡️',
+        theme: 'amber',
+        timeHint: 'Suốt đợt thời tiết xấu',
+        locationHint: 'Khu vực kiên cố',
+        image: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=700&q=80',
+      };
+    }
+
+    // 11. Fallback mặc định
+    const fallbackThemes = ['blue', 'purple', 'emerald'];
+    const fallbackIcons = ['🎯', '✨', '🌿'];
+    const fallbackImages = [
+      'https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?auto=format&fit=crop&w=700&q=80',
+      'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=700&q=80',
+      'https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=700&q=80'
+    ];
+    return {
+      title: text,
+      desc: 'Hoạt động được đề xuất dựa trên phân tích điều kiện nhiệt độ, độ ẩm và thời tiết thực tế tại địa phương.',
+      category: 'GỢI Ý HÔM NAY',
+      status: 'PHÙ HỢP',
+      statusType: 'info',
+      icon: fallbackIcons[idx % fallbackIcons.length],
+      theme: fallbackThemes[idx % fallbackThemes.length],
+      timeHint: 'Thời gian linh hoạt',
+      locationHint: 'Địa điểm địa phương',
+      image: fallbackImages[idx % fallbackImages.length],
+    };
+  });
+}
+
 export default function App() {
   const [place, setPlace] = useState(null);
   const [data, setData] = useState(null);
@@ -1365,14 +1557,65 @@ export default function App() {
                 </p>
               )}
 
-              {/* Gợi ý hoạt động thực tế */}
-              <section className="card">
-                <h2>💡 Gợi ý hoạt động thực tế theo thời tiết hôm nay</h2>
-                <div className="tips-grid">
-                  {data.suggestions.map((s, i) => (
-                    <div className="tip-card-item" key={i}>
-                      <span>🎯</span>
-                      <span>{s}</span>
+              {/* Gợi ý hoạt động thực tế - Redesigned Visual Showcase */}
+              <section className="card suggestions-showcase-section">
+                <div className="suggestions-header-row">
+                  <div className="suggestions-title-group">
+                    <div className="suggestions-badge-pill">
+                      <span className="suggestions-live-dot" />
+                      <span>GỢI Ý LỐI SỐNG HÔM NAY</span>
+                    </div>
+                    <h2>💡 Hoạt Động & Trải Nghiệm Phù Hợp Thời Tiết</h2>
+                    <p className="suggestions-subtitle">
+                      Khuyến nghị sinh hoạt và vui chơi tối ưu dựa trên thời tiết thực tế {data.current?.description ? `(${data.current.description.toLowerCase()})` : ''} tại {place?.name || 'khu vực'}
+                    </p>
+                  </div>
+                  <div className="suggestions-summary-tag">
+                    <span className="tag-icon">🎯</span>
+                    <span>{data.suggestions?.length || 0} Đề xuất hữu ích</span>
+                  </div>
+                </div>
+
+                <div className="suggestions-visual-grid">
+                  {getEnrichedSuggestions(data).map((item, i) => (
+                    <div className={`suggestion-visual-card theme-${item.theme}`} key={i}>
+                      <div className="suggestion-card-banner">
+                        <img 
+                          src={item.image} 
+                          alt={item.title}
+                          className="suggestion-card-img" 
+                          loading="lazy"
+                          onError={(e) => { e.currentTarget.style.opacity = '0'; }}
+                        />
+                        <div className="suggestion-card-overlay" />
+                        <div className="suggestion-banner-top">
+                          <div className="suggestion-icon-badge">
+                            <span>{item.icon}</span>
+                          </div>
+                          <span className={`suggestion-status-badge ${item.statusType}`}>
+                            {item.status}
+                          </span>
+                        </div>
+                        <div className="suggestion-banner-bottom">
+                          <span className="suggestion-category-tag">{item.category}</span>
+                        </div>
+                      </div>
+
+                      <div className="suggestion-card-body">
+                        <h3 className="suggestion-card-title">{item.title}</h3>
+                        <p className="suggestion-card-desc">{item.desc}</p>
+                        
+                        <div className="suggestion-meta-row">
+                          <div className="suggestion-meta-item">
+                            <span className="meta-icon">⏰</span>
+                            <span className="meta-label">{item.timeHint}</span>
+                          </div>
+                          <div className="suggestion-meta-item">
+                            <span className="meta-icon">📍</span>
+                            <span className="meta-label">{item.locationHint}</span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -1945,14 +2188,65 @@ export default function App() {
                 </div>
               </section>
 
-              {/* Gợi ý hoạt động */}
-              <section className="card">
-                <h2>💡 Khuyến nghị sức khỏe & Lối sống hôm nay</h2>
-                <div className="tips-grid">
-                  {data.suggestions.map((s, i) => (
-                    <div className="tip-card-item" key={i}>
-                      <span>🎯</span>
-                      <span>{s}</span>
+              {/* Gợi ý hoạt động & khuyến nghị sức khỏe */}
+              <section className="card suggestions-showcase-section">
+                <div className="suggestions-header-row">
+                  <div className="suggestions-title-group">
+                    <div className="suggestions-badge-pill">
+                      <span className="suggestions-live-dot" />
+                      <span>KHUYẾN NGHỊ SỨC KHỎE</span>
+                    </div>
+                    <h2>💡 Khuyến Nghị Sinh Hoạt & Bảo Vệ Sức Khỏe</h2>
+                    <p className="suggestions-subtitle">
+                      Kết hợp giữa chỉ số chất lượng không khí (AQI) và điều kiện thời tiết thực tế tại {place?.name || 'khu vực'}
+                    </p>
+                  </div>
+                  <div className="suggestions-summary-tag">
+                    <span className="tag-icon">🎯</span>
+                    <span>{data.suggestions?.length || 0} Đề xuất</span>
+                  </div>
+                </div>
+
+                <div className="suggestions-visual-grid">
+                  {getEnrichedSuggestions(data).map((item, i) => (
+                    <div className={`suggestion-visual-card theme-${item.theme}`} key={i}>
+                      <div className="suggestion-card-banner">
+                        <img 
+                          src={item.image} 
+                          alt={item.title}
+                          className="suggestion-card-img" 
+                          loading="lazy"
+                          onError={(e) => { e.currentTarget.style.opacity = '0'; }}
+                        />
+                        <div className="suggestion-card-overlay" />
+                        <div className="suggestion-banner-top">
+                          <div className="suggestion-icon-badge">
+                            <span>{item.icon}</span>
+                          </div>
+                          <span className={`suggestion-status-badge ${item.statusType}`}>
+                            {item.status}
+                          </span>
+                        </div>
+                        <div className="suggestion-banner-bottom">
+                          <span className="suggestion-category-tag">{item.category}</span>
+                        </div>
+                      </div>
+
+                      <div className="suggestion-card-body">
+                        <h3 className="suggestion-card-title">{item.title}</h3>
+                        <p className="suggestion-card-desc">{item.desc}</p>
+                        
+                        <div className="suggestion-meta-row">
+                          <div className="suggestion-meta-item">
+                            <span className="meta-icon">⏰</span>
+                            <span className="meta-label">{item.timeHint}</span>
+                          </div>
+                          <div className="suggestion-meta-item">
+                            <span className="meta-icon">📍</span>
+                            <span className="meta-label">{item.locationHint}</span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>

@@ -1502,13 +1502,347 @@ input:focus {
   font-size: 0.94rem;
 }
 
-/* ===== GỢI Ý HOẠT ĐỘNG (SUGGESTIONS - ĐỀ CƯƠNG) ===== */
+/* ===== GỢI Ý HOẠT ĐỘNG THỰC TẾ & LỐI SỐNG (SUGGESTIONS SHOWCASE) ===== */
+.suggestions-showcase-section {
+  position: relative;
+  overflow: hidden;
+  padding: 24px 26px 26px;
+  border-radius: 24px;
+  background: var(--card-bg);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--card-shadow);
+  margin-bottom: 24px;
+}
+
+.suggestions-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.suggestions-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 260px;
+}
+
+.suggestions-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  align-self: flex-start;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: #0284c7;
+  background: rgba(2, 132, 199, 0.12);
+  border: 1px solid rgba(2, 132, 199, 0.25);
+  padding: 4px 12px;
+  border-radius: 999px;
+}
+
+[data-theme="dark-default"] .suggestions-badge-pill,
+[data-theme="midnight-aurora"] .suggestions-badge-pill,
+[data-theme="cyber-future"] .suggestions-badge-pill {
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.15);
+  border-color: rgba(56, 189, 248, 0.35);
+}
+
+.suggestions-live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 10px #10b981;
+  animation: pulseDot 2s infinite ease-in-out;
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+.suggestions-title-group h2 {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin: 0;
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.suggestions-subtitle {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+  margin: 0;
+}
+
+.suggestions-summary-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-sub);
+  background: var(--card-subtle);
+  border: 1px solid var(--glass-border);
+  padding: 6px 14px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+/* Grid của thẻ gợi ý hình ảnh */
+.suggestions-visual-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(285px, 1fr));
+  gap: 20px;
+}
+
+.suggestion-visual-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--card-subtle);
+  border-radius: 20px;
+  border: 1px solid var(--glass-border);
+  overflow: hidden;
+  position: relative;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+
+.suggestion-visual-card:hover {
+  transform: translateY(-6px);
+  background: var(--card-hover);
+}
+
+/* Màu viền & đổ bóng theo theme */
+.suggestion-visual-card.theme-blue:hover {
+  border-color: rgba(56, 189, 248, 0.6);
+  box-shadow: 0 16px 36px rgba(2, 132, 199, 0.22);
+}
+.suggestion-visual-card.theme-purple:hover {
+  border-color: rgba(167, 139, 250, 0.6);
+  box-shadow: 0 16px 36px rgba(139, 92, 246, 0.22);
+}
+.suggestion-visual-card.theme-emerald:hover {
+  border-color: rgba(52, 211, 153, 0.6);
+  box-shadow: 0 16px 36px rgba(16, 185, 129, 0.22);
+}
+.suggestion-visual-card.theme-amber:hover {
+  border-color: rgba(251, 191, 36, 0.6);
+  box-shadow: 0 16px 36px rgba(245, 158, 11, 0.22);
+}
+
+/* Banner ảnh Unsplash */
+.suggestion-card-banner {
+  position: relative;
+  width: 100%;
+  height: 165px;
+  overflow: hidden;
+  background: #0f172a;
+}
+
+.suggestion-card-banner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.2) 0%, rgba(15, 23, 42, 0.05) 40%, rgba(15, 23, 42, 0.85) 100%);
+  pointer-events: none;
+}
+
+.suggestion-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  display: block;
+}
+
+.suggestion-visual-card:hover .suggestion-card-img {
+  transform: scale(1.08);
+}
+
+.suggestion-card-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.suggestion-banner-top {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 3;
+}
+
+.suggestion-icon-badge {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.72);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
+.suggestion-status-badge {
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 999px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.suggestion-status-badge.success {
+  background: rgba(16, 185, 129, 0.3);
+  color: #a7f3d0;
+  border: 1px solid rgba(52, 211, 153, 0.55);
+}
+
+.suggestion-status-badge.info {
+  background: rgba(14, 165, 233, 0.3);
+  color: #bae6fd;
+  border: 1px solid rgba(56, 189, 248, 0.55);
+}
+
+.suggestion-status-badge.warning {
+  background: rgba(245, 158, 11, 0.32);
+  color: #fde68a;
+  border: 1px solid rgba(251, 191, 36, 0.55);
+}
+
+.suggestion-banner-bottom {
+  position: absolute;
+  bottom: 10px;
+  left: 14px;
+  z-index: 3;
+}
+
+.suggestion-category-tag {
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: #f8fafc;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  padding: 3px 9px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Thân nội dung thẻ */
+.suggestion-card-body {
+  padding: 16px 18px 18px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.suggestion-card-title {
+  font-size: 1.05rem;
+  font-weight: 750;
+  color: var(--text-main);
+  line-height: 1.35;
+  margin: 0 0 8px 0;
+  letter-spacing: -0.01em;
+}
+
+.suggestion-card-desc {
+  font-size: 0.86rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin: 0 0 16px 0;
+  flex: 1;
+}
+
+.suggestion-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--glass-border);
+}
+
+.suggestion-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--text-sub);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 4px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--glass-border);
+}
+
+[data-theme="coastal-day"] .suggestion-meta-item,
+[data-theme="sky-bright"] .suggestion-meta-item {
+  background: rgba(241, 245, 249, 0.9);
+  color: #334155;
+}
+
+.suggestion-meta-item .meta-icon {
+  font-size: 0.85rem;
+}
+
+@media (max-width: 680px) {
+  .suggestions-showcase-section {
+    padding: 18px 16px 20px;
+    border-radius: 18px;
+  }
+  .suggestions-header-row {
+    margin-bottom: 16px;
+    gap: 12px;
+  }
+  .suggestions-title-group h2 {
+    font-size: 1.15rem;
+  }
+  .suggestions-visual-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .suggestion-card-banner {
+    height: 150px;
+  }
+}
+
+/* Fallback legacy tips */
 .tips-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 12px;
 }
-
 .tip-card-item {
   padding: 14px 18px;
   background: var(--card-subtle);
