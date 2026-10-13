@@ -1340,6 +1340,16 @@ export default function App() {
   };
 
   const audioCtxRef = useRef(null);
+  const hourlySliderRef = useRef(null);
+
+  const scrollHourly = (dir) => {
+    if (hourlySliderRef.current) {
+      hourlySliderRef.current.scrollBy({
+        left: dir === 'left' ? -300 : 300,
+        behavior: 'smooth',
+      });
+    }
+  };
 
   const isLightMode = theme === 'coastal-day' || theme === 'sky-bright';
 
@@ -2143,34 +2153,98 @@ export default function App() {
                 </div>
               </section>
 
-              {/* Thanh dự báo theo từng giờ */}
-              <section className="card" style={{ padding: '18px 20px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                  <h2 style={{ margin: 0 }}>⏱️ Dự báo chi tiết các mốc giờ tới</h2>
-                  <button
-                    onClick={() => goToPage('forecast')}
-                    style={{ background: 'transparent', border: 0, color: '#0284c7', fontSize: '0.84rem', fontWeight: 700, cursor: 'pointer' }}
-                  >
-                    Xem Biểu Đồ Đầy Đủ →
-                  </button>
-                </div>
-                <div className="hourly-slider-wrap">
-                  {data.hourly.map((h, i) => (
-                    <div className="hourly-item-card" key={i}>
-                      <span className="hourly-time">{i === 0 ? 'Bây giờ' : fmtHour(h.t)}</span>
-                      <img
-                        className="hourly-icon"
-                        src={`https://openweathermap.org/img/wn/${h.icon}.png`}
-                        alt={h.desc}
-                      />
-                      <span className="hourly-temp">{convertT(h.temp)}°</span>
-                      {h.pop > 0 ? (
-                        <span className="hourly-pop">💧 {h.pop}%</span>
-                      ) : (
-                        <span className="hourly-pop" style={{ opacity: 0.35 }}>—</span>
-                      )}
+              {/* Thanh dự báo theo từng giờ - Redesigned Apple Glassmorphism Carousel */}
+              <section className="card hourly-forecast-card">
+                <div className="hourly-header-row">
+                  <div className="hourly-title-group">
+                    <div className="hourly-badge-pill">
+                      <span className="hourly-live-dot" />
+                      <span>DỰ BÁO TIẾP DIỄN 48H</span>
                     </div>
-                  ))}
+                    <h2>⏱️ Diễn Biến Thời Tiết Từng Khung Giờ</h2>
+                    <p className="hourly-subtitle">
+                      Mô phỏng nhiệt độ, khả năng mưa và sức gió chi tiết theo thời gian thực
+                    </p>
+                  </div>
+                  
+                  <div className="hourly-header-actions">
+                    <button
+                      className="hourly-chart-link-btn"
+                      onClick={() => goToPage('forecast')}
+                      title="Chuyển sang trang Biểu đồ & Dự báo chuyên sâu"
+                    >
+                      <span>📊 Xem Biểu Đồ Đầy Đủ</span>
+                      <span className="arrow-icon">→</span>
+                    </button>
+                    <div className="hourly-nav-arrows">
+                      <button 
+                        className="hourly-arrow-btn"
+                        onClick={() => scrollHourly('left')}
+                        title="Cuộn sang trái"
+                        aria-label="Cuộn sang trái"
+                      >
+                        ‹
+                      </button>
+                      <button 
+                        className="hourly-arrow-btn"
+                        onClick={() => scrollHourly('right')}
+                        title="Cuộn sang phải"
+                        aria-label="Cuộn sang phải"
+                      >
+                        ›
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="hourly-slider-container">
+                  <div className="hourly-slider-wrap" ref={hourlySliderRef}>
+                    {data.hourly.map((h, i) => {
+                      const isNow = i === 0;
+                      const hourNum = new Date(h.t * 1000).getHours();
+                      const isNight = hourNum >= 18 || hourNum < 6;
+                      return (
+                        <div 
+                          className={`hourly-item-card ${isNow ? 'is-now' : ''} ${isNight ? 'is-night' : 'is-day'}`} 
+                          key={i}
+                          title={`${fmtHour(h.t)}: ${h.desc || 'Thời tiết ổn định'}, Gió ${Math.round(h.wind || 0)} km/h`}
+                        >
+                          {isNow && <span className="now-pill-badge">Hiện tại</span>}
+                          <span className="hourly-time">{isNow ? 'Bây giờ' : fmtHour(h.t)}</span>
+                          
+                          <div className="hourly-icon-wrap">
+                            <img
+                              className="hourly-icon"
+                              src={`https://openweathermap.org/img/wn/${h.icon}.png`}
+                              alt={h.desc}
+                              loading="lazy"
+                            />
+                          </div>
+
+                          <span className="hourly-temp">{convertT(h.temp)}°</span>
+                          
+                          <div className="hourly-metrics-mini">
+                            {h.pop > 0 ? (
+                              <span className="hourly-pop has-rain" title={`Xác suất mưa ${h.pop}%`}>
+                                💧 {h.pop}%
+                              </span>
+                            ) : (
+                              <span className="hourly-pop is-dry" title="Khả năng mưa thấp">
+                                ☀️ 0%
+                              </span>
+                            )}
+                            {h.wind != null && (
+                              <span className="hourly-wind-mini" title={`Tốc độ gió ${Math.round(h.wind)} km/h`}>
+                                💨 {Math.round(h.wind)}
+                              </span>
+                            )}
+                          </div>
+
+                          {h.desc && <span className="hourly-desc-tag">{h.desc}</span>}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               </section>
 
