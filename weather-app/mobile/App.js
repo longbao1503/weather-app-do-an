@@ -13,6 +13,7 @@ import {
   getUvInfo, getAqiInfo, QUICK_LOCATIONS,
 } from './src/utils';
 import { getWeatherBannerData } from './src/provinces';
+import { getEnrichedSuggestions } from './src/suggestions';
 
 const { width: SCREEN_W } = Dimensions.get('window');
 
@@ -46,6 +47,8 @@ export default function App() {
   const [searching, setSearching] = useState(false);
   const [activeTab, setActiveTab] = useState('home'); // 'home' | 'forecast' | 'map' | 'air' | 'search'
   const [selectedDay, setSelectedDay] = useState(null); // modal chi tiết ngày
+  const [selectedSuggestion, setSelectedSuggestion] = useState(null); // modal chi tiết hoạt động gợi ý
+  const [coldStartSecs, setColdStartSecs] = useState(0); // đếm giây khi máy chủ Render đang khởi động
   const [unit, setUnit] = useState('C'); // 'C' | 'F'
   const [favs, setFavs] = useState([]); // danh sách địa điểm yêu thích
   const [mapLayer, setMapLayer] = useState('satellite'); // 'satellite' | 'radar' | 'street'
@@ -183,10 +186,28 @@ export default function App() {
 
   const onRefresh = () => loadWeather(location, true);
 
+  /* Đếm thời gian khi máy chủ Render đang khởi động (Cold Start) */
+  useEffect(() => {
+    let timer;
+    if (loading && !weather) {
+      timer = setInterval(() => {
+        setColdStartSecs((prev) => prev + 1);
+      }, 1000);
+    } else {
+      setColdStartSecs(0);
+    }
+    return () => clearInterval(timer);
+  }, [loading, weather]);
+
   /* Banner cảnh quan thực tế 2K theo tỉnh thành */
   const bannerData = useMemo(() => {
     return getWeatherBannerData(location?.name || 'Nha Trang');
   }, [location?.name]);
+
+  /* Đề xuất 6 hoạt động & lối sống phong phú đồng bộ với Web App */
+  const enrichedSuggestions = useMemo(() => {
+    return getEnrichedSuggestions(weather, location);
+  }, [weather, location]);
 
   /* Đánh giá độ đồng thuận 2 mô hình (OWM vs Open-Meteo) */
   const consensusRating = useMemo(() => {
@@ -317,6 +338,22 @@ export default function App() {
         <View style={styles.centerContainer}>
           <ActivityIndicator size="large" color={C.accent} />
           <Text style={styles.loadingText}>Đang nạp dữ liệu thời tiết thời gian thực...</Text>
+          {coldStartSecs >= 3 && (
+            <View style={styles.coldStartCard}>
+              <View style={styles.coldStartHeader}>
+                <Text style={styles.coldStartIcon}>⏳</Text>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.coldStartTitle}>Máy chủ đám mây đang khởi động</Text>
+                  <Text style={styles.coldStartSub}>
+                    Dịch vụ đám mây (Render) cần khoảng 20–40 giây để thức dậy lần đầu sau thời gian nghỉ. Đang xử lý: {coldStartSecs}s...
+                  </Text>
+                </View>
+              </View>
+              <View style={styles.coldProgressBarTrack}>
+                <View style={[styles.coldProgressBarFill, { width: `${Math.min(15 + coldStartSecs * 2.5, 95)}%` }]} />
+              </View>
+            </View>
+          )}
         </View>
       );
     }
@@ -359,7 +396,7 @@ export default function App() {
           </View>
         ) : (
           <View style={styles.safeBannerRow}>
-            <Text style={styles.safeBannerText}>✅ An toàn: Thời tiết ổn định, không có cảnh báo cực đoan.</Text>
+            <Text style={styles.safeBannerText}>✅ An toàn: Thời tiết ổn định, không có cảnh báo cực đoan trong 3 ngày tới.</Text>
           </View>
         )}
 
@@ -435,43 +472,150 @@ export default function App() {
           </ImageBackground>
         </View>
 
-        {/* DỰ BÁO THEO TỪNG GIỜ (APPLE WEATHER STYLE SLIDER) */}
+        {/* DỰ BÁO THEO TỪNG GIỜ (APPLE GLASSMORPHISM SLIDER) */}
         <View style={styles.sectionHeaderRow}>
-          <Text style={styles.sectionHeading}>⏱️ Dự báo chi tiết theo giờ</Text>
-          <TouchableOpacity onPress={() => setActiveTab('forecast')}>
+          <View>
+            <View style={styles.headerLiveBadge}>
+              <View style={styles.liveDot} />
+              <Text style={styles.liveDotText}>DỰ BÁO TIẾP DIỄN 48H</Text>
+            </View>
+            <Text style={styles.sectionHeading}>⏱️ Diễn Biến Thời Tiết Từng Khung Giờ</Text>
+            <Text style={styles.sectionSubHeading}>Nhiệt độ, xác suất mưa và sức gió chi tiết</Text>
+          </View>
+          <TouchableOpacity onPress={() => setActiveTab('forecast')} style={styles.hourlyMoreBtn}>
             <Text style={styles.sectionActionLink}>Xem 48 giờ ▶</Text>
           </TouchableOpacity>
         </View>
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.hourlyScrollView}>
-          {weather.hourly.map((h, i) => (
-            <View key={i} style={[styles.hourlyCard, i === 0 && styles.hourlyCardNow]}>
-              <Text style={styles.hourlyTimeText}>{i === 0 ? 'Bây giờ' : fmtHour(h.t)}</Text>
-              <Text style={styles.hourlyEmoji}>{weatherEmoji(h.desc)}</Text>
-              <Text style={styles.hourlyTempText}>{convertT(h.temp)}°</Text>
-              {h.pop > 0 ? (
-                <View style={styles.hourlyPopBadge}>
-                  <Text style={styles.hourlyPopText}>💧{h.pop}%</Text>
+          {weather.hourly.map((h, i) => {
+            const isNow = i === 0;
+            return (
+              <View key={i} style={[styles.hourlyCard, isNow && styles.hourlyCardNow]}>
+                {isNow && (
+                  <View style={styles.hourlyNowBadge}>
+                    <Text style={styles.hourlyNowText}>Hiện tại</Text>
+                  </View>
+                )}
+                <Text style={[styles.hourlyTimeText, isNow && styles.hourlyTimeTextNow]}>
+                  {isNow ? 'Bây giờ' : fmtHour(h.t)}
+                </Text>
+
+                {h.icon ? (
+                  <Image
+                    source={{ uri: `https://openweathermap.org/img/wn/${h.icon}@2x.png` }}
+                    style={styles.hourlyIconImg}
+                    resizeMode="contain"
+                  />
+                ) : (
+                  <Text style={styles.hourlyEmoji}>{weatherEmoji(h.desc)}</Text>
+                )}
+
+                <Text style={styles.hourlyTempText}>{convertT(h.temp)}°</Text>
+
+                <View style={styles.hourlyMiniStatsRow}>
+                  {h.pop > 0 ? (
+                    <View style={styles.hourlyPopBadge}>
+                      <Text style={styles.hourlyPopText}>💧 {h.pop}%</Text>
+                    </View>
+                  ) : (
+                    <View style={styles.hourlyPopDry}>
+                      <Text style={styles.hourlyPopDryText}>☀️ 0%</Text>
+                    </View>
+                  )}
+                  {h.wind != null && (
+                    <View style={styles.hourlyWindBadge}>
+                      <Text style={styles.hourlyWindText}>💨 {Math.round(h.wind)}</Text>
+                    </View>
+                  )}
                 </View>
-              ) : (
-                <Text style={styles.hourlyPopEmpty}>—</Text>
-              )}
-            </View>
-          ))}
+
+                {h.desc ? (
+                  <Text style={styles.hourlyDescTag} numberOfLines={1}>
+                    {h.desc}
+                  </Text>
+                ) : null}
+              </View>
+            );
+          })}
         </ScrollView>
 
-        {/* GỢI Ý HOẠT ĐỘNG THÔNG MINH */}
-        {weather.suggestions && weather.suggestions.length > 0 && (
-          <View style={styles.contentCard}>
-            <Text style={styles.cardTitle}>💡 Gợi ý sinh hoạt hôm nay</Text>
-            {weather.suggestions.map((s, i) => (
-              <View key={i} style={styles.suggestionRow}>
-                <Text style={styles.suggestionBullet}>🎯</Text>
-                <Text style={styles.suggestionText}>{s}</Text>
-              </View>
-            ))}
+        {/* GỢI Ý HOẠT ĐỘNG THÔNG MINH - 6 THẺ VISUAL SHOWCASE ĐỒNG BỘ WEB */}
+        <View style={styles.suggestionsHeaderWrap}>
+          <View style={styles.headerLiveBadge}>
+            <View style={styles.liveDot} />
+            <Text style={styles.liveDotText}>GỢI Ý LỐI SỐNG HÔM NAY</Text>
           </View>
-        )}
+          <View style={styles.suggestionsTitleRow}>
+            <Text style={styles.suggestionsHeading}>💡 Hoạt Động & Trải Nghiệm Phù Hợp</Text>
+            <View style={styles.suggestionsCountBadge}>
+              <Text style={styles.suggestionsCountText}>🎯 {enrichedSuggestions.length} Đề xuất</Text>
+            </View>
+          </View>
+          <Text style={styles.suggestionsSubtitle}>
+            Khuyến nghị sinh hoạt và vui chơi tối ưu dựa trên thời tiết thực tế {weather.current?.desc ? `(${weather.current.desc.toLowerCase()})` : ''} tại {location?.name || 'khu vực'}
+          </Text>
+        </View>
+
+        <View style={styles.suggestionsVisualContainer}>
+          {enrichedSuggestions.map((item, i) => (
+            <TouchableOpacity
+              key={i}
+              style={styles.suggestionVisualCard}
+              onPress={() => setSelectedSuggestion(item)}
+              activeOpacity={0.85}
+            >
+              <ImageBackground
+                source={{ uri: item.image }}
+                style={styles.suggestionCardBanner}
+                imageStyle={{ borderRadius: 18 }}
+              >
+                <LinearGradient
+                  colors={['rgba(8, 14, 26, 0.25)', 'rgba(8, 14, 26, 0.7)', 'rgba(8, 14, 26, 0.95)']}
+                  style={styles.suggestionCardOverlay}
+                >
+                  <View style={styles.suggestionBannerTop}>
+                    <View style={styles.suggestionIconBadge}>
+                      <Text style={styles.suggestionIconEmoji}>{item.icon}</Text>
+                    </View>
+                    <View style={[styles.suggestionStatusBadge, styles[`statusBadge_${item.statusType}`] || styles.statusBadge_info]}>
+                      <Text style={[styles.suggestionStatusText, styles[`statusText_${item.statusType}`] || styles.statusText_info]}>
+                        {item.status}
+                      </Text>
+                    </View>
+                  </View>
+
+                  <View style={styles.suggestionBannerBottom}>
+                    <View style={styles.suggestionCategoryTag}>
+                      <Text style={styles.suggestionCategoryText}>{item.category}</Text>
+                    </View>
+                  </View>
+                </LinearGradient>
+              </ImageBackground>
+
+              <View style={styles.suggestionCardBody}>
+                <Text style={styles.suggestionCardTitle} numberOfLines={2}>{item.title}</Text>
+                <Text style={styles.suggestionCardDesc} numberOfLines={3}>{item.desc}</Text>
+
+                <View style={styles.suggestionMetaRow}>
+                  <View style={styles.suggestionMetaItem}>
+                    <Text style={styles.suggestionMetaIcon}>⏰</Text>
+                    <Text style={styles.suggestionMetaLabel} numberOfLines={1}>{item.timeHint}</Text>
+                  </View>
+                  <View style={styles.suggestionMetaItem}>
+                    <Text style={styles.suggestionMetaIcon}>📍</Text>
+                    <Text style={styles.suggestionMetaLabel} numberOfLines={1}>{item.locationHint}</Text>
+                  </View>
+                </View>
+
+                <View style={styles.suggestionActionRow}>
+                  <Text style={styles.suggestionActionText}>Xem chi tiết hướng dẫn & trang bị</Text>
+                  <Text style={styles.suggestionActionArrow}>→</Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </View>
 
         {/* ===== TRUNG TÂM NÚT CTA ĐIỀU HƯỚNG CHUYÊN SÂU (ACTION HUB) ===== */}
         <View style={styles.ctaHubContainer}>
@@ -1157,6 +1301,99 @@ export default function App() {
     );
   };
 
+  /* ─── MODAL CHI TIẾT HOẠT ĐỘNG GỢI Ý (UNSPLASH SHOWCASE POPUP) ─── */
+  const renderSuggestionModal = () => {
+    if (!selectedSuggestion) return null;
+    return (
+      <Modal
+        visible={!!selectedSuggestion}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setSelectedSuggestion(null)}
+      >
+        <View style={styles.modalBackdrop}>
+          <View style={styles.sugModalWindow}>
+            {/* Banner ảnh của hoạt động */}
+            <ImageBackground
+              source={{ uri: selectedSuggestion.image }}
+              style={styles.sugModalBanner}
+              imageStyle={{ borderTopLeftRadius: 22, borderTopRightRadius: 22 }}
+            >
+              <LinearGradient
+                colors={['rgba(8, 14, 26, 0.25)', 'rgba(8, 14, 26, 0.85)']}
+                style={styles.sugModalBannerOverlay}
+              >
+                <View style={styles.sugModalTopRow}>
+                  <View style={styles.suggestionIconBadge}>
+                    <Text style={styles.suggestionIconEmoji}>{selectedSuggestion.icon}</Text>
+                  </View>
+                  <TouchableOpacity onPress={() => setSelectedSuggestion(null)} style={styles.modalCloseCircle}>
+                    <Text style={styles.modalCloseX}>✕</Text>
+                  </TouchableOpacity>
+                </View>
+                <View style={styles.suggestionCategoryTag}>
+                  <Text style={styles.suggestionCategoryText}>{selectedSuggestion.category}</Text>
+                </View>
+              </LinearGradient>
+            </ImageBackground>
+
+            <ScrollView style={styles.sugModalBody} showsVerticalScrollIndicator={false}>
+              <View style={styles.sugModalHeaderInfo}>
+                <View style={[styles.suggestionStatusBadge, styles[`statusBadge_${selectedSuggestion.statusType}`] || styles.statusBadge_info]}>
+                  <Text style={[styles.suggestionStatusText, styles[`statusText_${selectedSuggestion.statusType}`] || styles.statusText_info]}>
+                    {selectedSuggestion.status}
+                  </Text>
+                </View>
+                <Text style={styles.sugModalTitle}>{selectedSuggestion.title}</Text>
+                <Text style={styles.sugModalDesc}>{selectedSuggestion.desc}</Text>
+              </View>
+
+              {/* Meta Info */}
+              <View style={styles.sugModalMetaBox}>
+                <View style={styles.sugModalMetaRow}>
+                  <Text style={styles.sugModalMetaIcon}>⏰</Text>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.sugModalMetaHeading}>Khung Giờ Lý Tưởng</Text>
+                    <Text style={styles.sugModalMetaVal}>{selectedSuggestion.timeHint}</Text>
+                  </View>
+                </View>
+                <View style={styles.sugModalMetaRow}>
+                  <Text style={styles.sugModalMetaIcon}>📍</Text>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.sugModalMetaHeading}>Địa Điểm Khuyến Nghị</Text>
+                    <Text style={styles.sugModalMetaVal}>{selectedSuggestion.locationHint}</Text>
+                  </View>
+                </View>
+              </View>
+
+              {/* Checklist / Trang bị & Lưu ý an toàn */}
+              {selectedSuggestion.checklist && selectedSuggestion.checklist.length > 0 && (
+                <View style={styles.sugModalChecklistBox}>
+                  <Text style={styles.sugModalChecklistHeading}>🎒 Trang Bị & Lưu Ý Khi Tham Gia:</Text>
+                  {selectedSuggestion.checklist.map((c, i) => (
+                    <View key={i} style={styles.sugModalCheckItem}>
+                      <Text style={styles.sugModalCheckmark}>✓</Text>
+                      <Text style={styles.sugModalCheckText}>{c}</Text>
+                    </View>
+                  ))}
+                </View>
+              )}
+
+              <TouchableOpacity
+                style={styles.sugModalDoneBtn}
+                onPress={() => setSelectedSuggestion(null)}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.sugModalDoneBtnText}>Đã Hiểu & Lên Kế Hoạch</Text>
+              </TouchableOpacity>
+              <View style={{ height: 16 }} />
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+    );
+  };
+
   /* ─── THANH ĐIỀU HƯỚNG DƯỚI CÙNG (5 TABS CHUẨN) ─── */
   const tabs = [
     { id: 'home', icon: '🏠', label: 'Tổng quan' },
@@ -1185,7 +1422,10 @@ export default function App() {
       {/* 3. Modal chi tiết ngày */}
       {renderDayModal()}
 
-      {/* 4. Bottom Tab Bar 5 Chuyên Mục */}
+      {/* 4. Modal chi tiết gợi ý hoạt động */}
+      {renderSuggestionModal()}
+
+      {/* 5. Bottom Tab Bar 5 Chuyên Mục */}
       <View style={styles.bottomTabBar}>
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
@@ -1741,62 +1981,516 @@ const styles = StyleSheet.create({
     color: C.textSub,
     fontSize: 12,
     fontWeight: '600',
+    marginTop: 2,
   },
   sectionActionLink: {
     color: C.accent,
     fontSize: 12,
     fontWeight: '700',
   },
+  headerLiveBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 4,
+    backgroundColor: 'rgba(56, 189, 248, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(56, 189, 248, 0.25)',
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    alignSelf: 'flex-start',
+  },
+  liveDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#22c55e',
+  },
+  liveDotText: {
+    color: '#38bdf8',
+    fontSize: 9.5,
+    fontWeight: '800',
+    letterSpacing: 0.5,
+  },
+  hourlyMoreBtn: {
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.12)',
+    borderRadius: 14,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+  },
 
-  /* Hourly Forecast Slider */
+  /* Hourly Forecast Slider (Apple Glassmorphism) */
   hourlyScrollView: {
-    marginBottom: 16,
+    marginBottom: 18,
   },
   hourlyCard: {
-    width: 76,
-    backgroundColor: C.bgCard,
+    width: 84,
+    backgroundColor: 'rgba(15, 25, 45, 0.82)',
     borderWidth: 1,
-    borderColor: C.cardBorder,
+    borderColor: 'rgba(255, 255, 255, 0.12)',
     borderRadius: 18,
     paddingVertical: 12,
-    paddingHorizontal: 8,
+    paddingHorizontal: 6,
     alignItems: 'center',
     marginRight: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 3,
   },
   hourlyCardNow: {
-    borderColor: C.accent,
-    backgroundColor: 'rgba(2, 132, 199, 0.15)',
+    borderColor: '#38bdf8',
+    backgroundColor: 'rgba(2, 132, 199, 0.25)',
+  },
+  hourlyNowBadge: {
+    backgroundColor: '#0284c7',
+    borderRadius: 8,
+    paddingHorizontal: 6,
+    paddingVertical: 1.5,
+    marginBottom: 4,
+  },
+  hourlyNowText: {
+    color: '#fff',
+    fontSize: 8.5,
+    fontWeight: '800',
   },
   hourlyTimeText: {
     color: C.textSub,
     fontSize: 11,
     fontWeight: '600',
   },
+  hourlyTimeTextNow: {
+    color: '#38bdf8',
+    fontWeight: '800',
+  },
+  hourlyIconImg: {
+    width: 38,
+    height: 38,
+    marginVertical: 2,
+  },
   hourlyEmoji: {
     fontSize: 24,
-    marginVertical: 6,
+    marginVertical: 4,
   },
   hourlyTempText: {
     color: C.textMain,
     fontSize: 15,
     fontWeight: '800',
+    marginTop: 2,
+  },
+  hourlyMiniStatsRow: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: 3,
+    marginTop: 5,
   },
   hourlyPopBadge: {
-    marginTop: 4,
-    backgroundColor: 'rgba(56, 189, 248, 0.15)',
-    borderRadius: 8,
-    paddingHorizontal: 5,
-    paddingVertical: 2,
+    backgroundColor: 'rgba(56, 189, 248, 0.18)',
+    borderRadius: 6,
+    paddingHorizontal: 6,
+    paddingVertical: 1.5,
   },
   hourlyPopText: {
     color: C.accentRain,
-    fontSize: 10,
+    fontSize: 9.5,
     fontWeight: '700',
   },
-  hourlyPopEmpty: {
-    color: C.textMuted,
-    fontSize: 11,
+  hourlyPopDry: {
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: 6,
+    paddingHorizontal: 5,
+    paddingVertical: 1,
+  },
+  hourlyPopDryText: {
+    color: '#64748b',
+    fontSize: 9,
+    fontWeight: '600',
+  },
+  hourlyWindBadge: {
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: 6,
+    paddingHorizontal: 5,
+    paddingVertical: 1,
+  },
+  hourlyWindText: {
+    color: '#94a3b8',
+    fontSize: 9,
+    fontWeight: '600',
+  },
+  hourlyDescTag: {
+    color: '#cbd5e1',
+    fontSize: 9,
     marginTop: 4,
+    textAlign: 'center',
+    textTransform: 'capitalize',
+    maxWidth: 76,
+  },
+
+  /* GỢI Ý LỐI SỐNG (6 THẺ VISUAL CARDS) */
+  suggestionsHeaderWrap: {
+    marginBottom: 14,
+    marginTop: 6,
+  },
+  suggestionsTitleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 2,
+    marginBottom: 2,
+  },
+  suggestionsHeading: {
+    color: C.textMain,
+    fontSize: 15.5,
+    fontWeight: '800',
+    flex: 1,
+  },
+  suggestionsCountBadge: {
+    backgroundColor: 'rgba(56, 189, 248, 0.14)',
+    borderWidth: 1,
+    borderColor: 'rgba(56, 189, 248, 0.3)',
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    marginLeft: 8,
+  },
+  suggestionsCountText: {
+    color: '#38bdf8',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  suggestionsSubtitle: {
+    color: C.textSub,
+    fontSize: 11.5,
+    lineHeight: 16,
+    marginTop: 3,
+  },
+  suggestionsVisualContainer: {
+    gap: 14,
+    marginBottom: 18,
+  },
+  suggestionVisualCard: {
+    borderRadius: 20,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: C.bgCard,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
+    elevation: 5,
+  },
+  suggestionCardBanner: {
+    height: 140,
+    width: '100%',
+  },
+  suggestionCardOverlay: {
+    flex: 1,
+    justifyContent: 'space-between',
+    padding: 12,
+  },
+  suggestionBannerTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  suggestionIconBadge: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(15, 23, 42, 0.8)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.25)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  suggestionIconEmoji: {
+    fontSize: 18,
+  },
+  suggestionStatusBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  suggestionStatusText: {
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 0.4,
+  },
+  statusBadge_warning: {
+    backgroundColor: 'rgba(239, 68, 68, 0.25)',
+    borderColor: '#ef4444',
+  },
+  statusText_warning: {
+    color: '#f87171',
+  },
+  statusBadge_info: {
+    backgroundColor: 'rgba(56, 189, 248, 0.25)',
+    borderColor: '#38bdf8',
+  },
+  statusText_info: {
+    color: '#38bdf8',
+  },
+  statusBadge_success: {
+    backgroundColor: 'rgba(34, 197, 94, 0.25)',
+    borderColor: '#22c55e',
+  },
+  statusText_success: {
+    color: '#4ade80',
+  },
+  statusBadge_amber: {
+    backgroundColor: 'rgba(245, 158, 11, 0.25)',
+    borderColor: '#f59e0b',
+  },
+  statusText_amber: {
+    color: '#fbbf24',
+  },
+  suggestionBannerBottom: {
+    flexDirection: 'row',
+  },
+  suggestionCategoryTag: {
+    backgroundColor: 'rgba(15, 23, 42, 0.85)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 10,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+  },
+  suggestionCategoryText: {
+    color: '#f1f5f9',
+    fontSize: 9.5,
+    fontWeight: '800',
+    letterSpacing: 0.5,
+  },
+  suggestionCardBody: {
+    padding: 14,
+  },
+  suggestionCardTitle: {
+    color: '#fff',
+    fontSize: 15,
+    fontWeight: '800',
+    lineHeight: 20,
+    marginBottom: 5,
+  },
+  suggestionCardDesc: {
+    color: '#94a3b8',
+    fontSize: 12,
+    lineHeight: 17,
+    marginBottom: 10,
+  },
+  suggestionMetaRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 10,
+    flexWrap: 'wrap',
+  },
+  suggestionMetaItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    flexShrink: 1,
+  },
+  suggestionMetaIcon: {
+    fontSize: 11,
+  },
+  suggestionMetaLabel: {
+    color: '#cbd5e1',
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  suggestionActionRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  suggestionActionText: {
+    color: '#38bdf8',
+    fontSize: 11.5,
+    fontWeight: '700',
+  },
+  suggestionActionArrow: {
+    color: '#38bdf8',
+    fontSize: 14,
+    fontWeight: '800',
+  },
+
+  /* COLD START HELPER */
+  coldStartCard: {
+    backgroundColor: 'rgba(245, 158, 11, 0.14)',
+    borderWidth: 1,
+    borderColor: 'rgba(245, 158, 11, 0.35)',
+    borderRadius: 16,
+    padding: 14,
+    marginTop: 18,
+    width: '90%',
+    maxWidth: 360,
+  },
+  coldStartHeader: {
+    flexDirection: 'row',
+    gap: 10,
+    alignItems: 'flex-start',
+    marginBottom: 10,
+  },
+  coldStartIcon: {
+    fontSize: 22,
+  },
+  coldStartTitle: {
+    color: '#fbbf24',
+    fontSize: 13,
+    fontWeight: '800',
+  },
+  coldStartSub: {
+    color: '#cbd5e1',
+    fontSize: 11,
+    lineHeight: 16,
+    marginTop: 2,
+  },
+  coldProgressBarTrack: {
+    height: 6,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 3,
+    overflow: 'hidden',
+  },
+  coldProgressBarFill: {
+    height: '100%',
+    backgroundColor: '#f59e0b',
+    borderRadius: 3,
+  },
+
+  /* MODAL CHI TIẾT GỢI Ý HOẠT ĐỘNG */
+  sugModalWindow: {
+    width: '100%',
+    maxWidth: 420,
+    maxHeight: '85%',
+    backgroundColor: '#0f1d33',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+    borderRadius: 24,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.5,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  sugModalBanner: {
+    height: 160,
+    width: '100%',
+  },
+  sugModalBannerOverlay: {
+    flex: 1,
+    justifyContent: 'space-between',
+    padding: 16,
+  },
+  sugModalTopRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  sugModalBody: {
+    padding: 16,
+  },
+  sugModalHeaderInfo: {
+    marginBottom: 14,
+  },
+  sugModalTitle: {
+    color: '#fff',
+    fontSize: 17,
+    fontWeight: '800',
+    lineHeight: 22,
+    marginTop: 8,
+    marginBottom: 6,
+  },
+  sugModalDesc: {
+    color: '#cbd5e1',
+    fontSize: 12.5,
+    lineHeight: 18,
+  },
+  sugModalMetaBox: {
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: 14,
+    padding: 12,
+    gap: 10,
+    marginBottom: 14,
+  },
+  sugModalMetaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  sugModalMetaIcon: {
+    fontSize: 18,
+  },
+  sugModalMetaHeading: {
+    color: '#94a3b8',
+    fontSize: 10.5,
+    fontWeight: '600',
+  },
+  sugModalMetaVal: {
+    color: '#fff',
+    fontSize: 12.5,
+    fontWeight: '700',
+    marginTop: 1,
+  },
+  sugModalChecklistBox: {
+    backgroundColor: 'rgba(2, 132, 199, 0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(56, 189, 248, 0.25)',
+    borderRadius: 14,
+    padding: 12,
+    marginBottom: 16,
+  },
+  sugModalChecklistHeading: {
+    color: '#38bdf8',
+    fontSize: 12,
+    fontWeight: '800',
+    marginBottom: 8,
+  },
+  sugModalCheckItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 8,
+    marginBottom: 6,
+  },
+  sugModalCheckmark: {
+    color: '#4ade80',
+    fontSize: 12,
+    fontWeight: '900',
+    marginTop: 1,
+  },
+  sugModalCheckText: {
+    color: '#e2e8f0',
+    fontSize: 12,
+    lineHeight: 17,
+    flex: 1,
+  },
+  sugModalDoneBtn: {
+    backgroundColor: '#0284c7',
+    borderRadius: 14,
+    paddingVertical: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sugModalDoneBtnText: {
+    color: '#fff',
+    fontSize: 13,
+    fontWeight: '800',
   },
 
   /* General Content Card */
